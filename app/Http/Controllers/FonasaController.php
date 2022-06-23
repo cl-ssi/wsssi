@@ -88,7 +88,7 @@ class FonasaController extends Controller
         }
         else
         {
-            echo "no se especificó el run y el dv como parámetro"
+            echo "no se especificó el run y el dv como parámetro";
         }
     }
 }
