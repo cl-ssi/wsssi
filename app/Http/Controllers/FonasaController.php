@@ -20,9 +20,11 @@ class FonasaController extends Controller
     public function certificate(Request $request)
     {
         /* Si se le envió el run y el dv por GET */
-        if($request->has('run') AND $request->has('dv')) {
-            $rut = $request->input('run');
-            $dv  = $request->input('dv');
+        //if($request->has('run') AND $request->has('dv')) {
+            //$rut = $request->input('run');
+            //$dv  = $request->input('dv');
+            $rut = 15287582;
+            $dv  = 7;
 
             $wsdl = 'wsdl/fonasa/CertificadorPrevisionalSoap.wsdl';
             $client = new \SoapClient($wsdl,array('trace'=>TRUE));
@@ -80,15 +82,15 @@ class FonasaController extends Controller
                 }
             }
 
-            echo '<pre>';
-            print_r($result);
+            //echo '<pre>';
+            //print_r($result);
             //dd($result);
 
             return isset($user) ? response()->json($user) : response()->json($error);
-        }
-        else
-        {
-            echo "no se especificó el run y el dv como parámetro";
-        }
+        //}
+        //else
+        //{
+        //    echo "no se especificó el run y el dv como parámetro";
+        //}
     }
 }
