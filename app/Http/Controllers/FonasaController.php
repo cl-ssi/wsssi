@@ -80,11 +80,15 @@ class FonasaController extends Controller
                 }
             }
 
-            // echo '<pre>';
-            //print_r($result);
+            echo '<pre>';
+            print_r($result);
             //dd($result);
 
             return isset($user) ? response()->json($user) : response()->json($error);
+        }
+        else
+        {
+            echo "no se especificó el run y el dv como parámetro"
         }
     }
 }
