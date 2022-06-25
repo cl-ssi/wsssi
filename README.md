@@ -1,24 +1,33 @@
-# Lumen PHP Framework
+# Servicio de Salud Iquique
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://img.shields.io/packagist/dt/laravel/framework)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://img.shields.io/packagist/v/laravel/framework)](https://packagist.org/packages/laravel/lumen-framework)
-[![License](https://img.shields.io/packagist/l/laravel/framework)](https://packagist.org/packages/laravel/lumen-framework)
+# WS-SSI - Sistema proxy de webservices
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+## Dependencias Windows con WSL2
+- [Instalar WSL2](https://docs.microsoft.com/es-es/windows/wsl/install)
+- [Instalar Docker Desktop](https://docs.docker.com/desktop/windows/install)
+- Instalar Git en WSL2 (ej: ```$ sudo apt-get install git```)
 
-## Official Documentation
+## Dependencias Mac
+- [Instalar Docker Desktop](https://www.docker.com/get-started/)
+- Instalar Git
 
-Documentation for the framework can be found on the [Lumen website](https://lumen.laravel.com/docs).
+## Instalación
+- Abrir un terminal de WSL (opcional [Instalar Windows Terminal](https://docs.microsoft.com/es-es/windows/terminal/))
+- ```git clone https://github.com/cl-ssi/wsssi```
+- ```cd wsssi```
+- ```cp .env.example .env```
+- Configurar usuarios .env
+- ```docker build -t wsssi docker/php8.1/.```
+- ```docker run --rm -it -v $(pwd):/var/www/html -p 8000:8000 -d --name wsssi wsssi```
+- ```docker exec -it wsssi /bin/bash```
+- Esto abrirá un contenedor con nuestra aplicación
+- ```su tic```
+- ```composer install```
+- ```php artisan key:generate```
+- ```php -S 0.0.0.0:8000 -t public```
+- Pudese usar el alias ```$ serve``` para este último comando, ver todos los alias: ```$ alias```
 
-## Contributing
-
-Thank you for considering contributing to Lumen! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Lumen framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Para detener el contenedor
+- ```docker stop wsssi```
+## Abrir el navegador
+- Ir a http://localhost:8000
