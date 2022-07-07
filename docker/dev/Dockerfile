@@ -21,14 +21,13 @@ RUN echo "alias serve='php -S 0.0.0.0:8000 -t public'" >> ~/.bashrc
 RUN echo "alias ll='ls -l'" >> ~/.bashrc
 RUN echo "alias s='cd ..'" >> ~/.bashrc
 
+# Crear el usuario y grupo tic
 RUN chmod 666 /root
-RUN addgroup -g 1000 1000
-RUN adduser -G 1000 -u 1000 -D -h /root -s /bin/bash tic
+RUN addgroup -g 1000 tic
+RUN adduser -G tic -u 1000 -D -h /root -s /bin/bash tic
 
-# ARG UNAME=atorres
-# ARG UID=1000
-# ARG GID=1000
-# RUN groupadd -g $GID -o $UNAME
-# RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
-
-# USER $UNAME
+##  Algunos Alias para el terminal
+# alias dbuild='docker build docker/dev -t `basename "$PWD"`'
+# alias drun='docker run --rm -it -v $(pwd):/var/www/html -p 8000:8000 -d --name `basename "$PWD"` `basename "$PWD"`'
+# alias dexec='docker exec -it `basename "$PWD"` /bin/bash'
+# alias dstop='docker stop `basename "$PWD"`'

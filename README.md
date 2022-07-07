@@ -17,7 +17,7 @@
 - ```cd wsssi```
 - ```cp .env.example .env```
 - Configurar usuarios .env
-- ```docker build -t wsssi docker/php8.1/.```
+- ```docker build -t wsssi docker/dev```
 - ```docker run --rm -it -v $(pwd):/var/www/html -p 8000:8000 -d --name wsssi wsssi```
 - ```docker exec -it wsssi /bin/bash```
 - Esto abrirá un contenedor con nuestra aplicación
