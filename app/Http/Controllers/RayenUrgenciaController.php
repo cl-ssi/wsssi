@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class RayenUrgenciaController extends Controller
 {
@@ -33,32 +34,37 @@ class RayenUrgenciaController extends Controller
 
 		foreach ($establecimientos as $nombre => $valores) {
 			$client = new Client(['headers' => [ 'Authorization' => $valores['token']]]);
-			$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
+			try {
+				$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
 
-			if($response->getStatusCode() == 200) {
-				$array = array_count_values(array_column(json_decode($response->getBody(),true),'AdmissionStatus'));
+				if($response->getStatusCode() == 200) {
+					$array = array_count_values(array_column(json_decode($response->getBody(),true),'AdmissionStatus'));
 
-				$count['data'][$nombre]['En espera'] = 0;
-				$count['data'][$nombre]['En box'] = 0; //12, 99, 100
+					$count['data'][$nombre]['En espera'] = 0;
+					$count['data'][$nombre]['En box'] = 0; //12, 99, 100
 
-				if(isset($array[1])) {
-						$count['data'][$nombre]['En espera'] = $array[1];
-				}
+					if(isset($array[1])) {
+							$count['data'][$nombre]['En espera'] = $array[1];
+					}
 
-				if(isset($array[12])) {
-						$count['data'][$nombre]['En box'] += $array[12];
+					if(isset($array[12])) {
+							$count['data'][$nombre]['En box'] += $array[12];
+					}
+					if(isset($array[99])) {
+							$count['data'][$nombre]['En box'] += $array[99];
+					}
+					if(isset($array[100])) {
+							$count['data'][$nombre]['En box'] += $array[100];
+					}
 				}
-				if(isset($array[99])) {
-						$count['data'][$nombre]['En box'] += $array[99];
+				else {
+					$count['data'][$nombre]['En espera'] = 'Error';
+					$count['data'][$nombre]['En box'] = 'Error';
 				}
-				if(isset($array[100])) {
-						$count['data'][$nombre]['En box'] += $array[100];
-				}
+			} catch(GuzzleException $e) {
+				die('Tiempo de espera agotado');
 			}
-			else {
-				$count['data'][$nombre]['En espera'] = 'Error';
-				$count['data'][$nombre]['En box'] = 'Error';
-			}
+			
 		}
 		$count['updated'] = date('Y-m-d H:i');
 		
