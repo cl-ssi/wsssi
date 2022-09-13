@@ -35,8 +35,6 @@ class RayenUrgenciaController extends Controller
 			$client = new Client(['headers' => [ 'Authorization' => $valores['token']]]);
 			$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
 
-			die($response->getBody());
-			
 			if($response->getStatusCode() == 200) {
 				$array = array_count_values(array_column(json_decode($response->getBody(),true),'AdmissionStatus'));
 
