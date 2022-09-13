@@ -32,13 +32,14 @@ class RayenUrgenciaController extends Controller
 		}
 
 		print_r($establecimientos);
-		die();
 
 		foreach ($establecimientos as $nombre => $valores) {
+			echo "entró al foreach <br>";
 			$client = new Client(['headers' => [ 'Authorization' => $valores['token']]]);
 			$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
 
 			if($response->getStatusCode() == 200) {
+				echo $nombre. " entro al 200<br>";
 				$array = array_count_values(array_column(json_decode($response->getBody(),true),'AdmissionStatus'));
 
 				$count['data'][$nombre]['En espera'] = 0;
