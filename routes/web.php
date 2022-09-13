@@ -19,6 +19,8 @@ $router->get('/',function(){
 
 $router->get('/fonasa','FonasaController@certificate');
 
+$router->get('/rayen-urgencia','RayenUrgenciaController@getStatus');
+
 $router->group(['prefix' => 'api/'], function () use ($router) {
     $router->get('login/','UsersController@authenticate');
     $router->post('todo/','TodoController@store');
