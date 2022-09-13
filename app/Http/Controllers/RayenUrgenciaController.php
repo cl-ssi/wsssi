@@ -31,15 +31,13 @@ class RayenUrgenciaController extends Controller
 			die('No se encuentra la variable ESTABLECIMIENTOS en el .env');
 		}
 
-		print_r($establecimientos);
-
 		foreach ($establecimientos as $nombre => $valores) {
-			echo "entró al foreach <br>";
 			$client = new Client(['headers' => [ 'Authorization' => $valores['token']]]);
 			$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
 
+			die($response->getBody());
+			
 			if($response->getStatusCode() == 200) {
-				echo $nombre. " entro al 200<br>";
 				$array = array_count_values(array_column(json_decode($response->getBody(),true),'AdmissionStatus'));
 
 				$count['data'][$nombre]['En espera'] = 0;
@@ -58,8 +56,6 @@ class RayenUrgenciaController extends Controller
 				if(isset($array[100])) {
 						$count['data'][$nombre]['En box'] += $array[100];
 				}
-
-				echo "Ok \n";
 			}
 			else {
 				$count['data'][$nombre]['En espera'] = 'Error';
@@ -68,6 +64,6 @@ class RayenUrgenciaController extends Controller
 		}
 		$count['updated'] = date('Y-m-d H:i');
 		
-		return isset($count) ? response()->json($count) : 'error';
+		return isset($count) ? response()->json($count) : null;
     }
 }
