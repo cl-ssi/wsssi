@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Client\RequestException;
 
 class RayenUrgenciaController extends Controller
 {
@@ -61,7 +62,7 @@ class RayenUrgenciaController extends Controller
 					$count['data'][$nombre]['En espera'] = 'Error';
 					$count['data'][$nombre]['En box'] = 'Error';
 				}
-			} catch(GuzzleException $e) {
+			} catch(RequestException $e) {
 				die('Tiempo de espera agotado');
 			}
 			
