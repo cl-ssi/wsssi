@@ -36,6 +36,9 @@ class RayenUrgenciaController extends Controller
 		foreach ($establecimientos as $nombre => $valores) {
 			$client = new Client(['headers' => [ 'Authorization' => $valores['token']]]);
 			try {
+
+				$response = $client->get('https://i.saludiquique.cl/dev/get-ip',['http_errors' => false]);
+				die('listoco');
 				$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
 
 				if($response->getStatusCode() == 200) {
