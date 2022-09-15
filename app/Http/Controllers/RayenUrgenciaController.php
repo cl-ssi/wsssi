@@ -27,7 +27,13 @@ class RayenUrgenciaController extends Controller
 		$url_base = 'https://api.saludenred.cl/api/healthCareCenter/';
 		$url_query = '/emergencyAdmissions?fromDate=';
 
+		/**
+		 * En archivo .env 
+		 * ESTABLECIMIENTOS='{"SAPU Aguirre":{"id":4198,"token":"SDX-TICKET ..."},"SAR Sur":{"id":4162,"token":"SDX-TICKET ..."}}'
+		 */
+
 		$establecimientos = json_decode(env('ESTABLECIMIENTOS'), true);
+
 		if ($establecimientos === null) {
 			// deal with error...
 			die('No se encuentra la variable ESTABLECIMIENTOS en el .env');
@@ -37,8 +43,8 @@ class RayenUrgenciaController extends Controller
 			$client = new Client(['headers' => [ 'Authorization' => $valores['token']]]);
 			try {
 
-				$response = $client->get('https://i.saludiquique.cl/dev/get-ip',['http_errors' => false]);
-				die('listoco');
+				// $response = $client->get('https://i.saludiquique.cl/dev/get-ip',['http_errors' => false]);
+				// die('listoco');
 				$response = $client->get($url_base . $valores['id'] . $url_query . $date,['http_errors' => false]);
 
 				if($response->getStatusCode() == 200) {
