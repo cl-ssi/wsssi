@@ -4,17 +4,21 @@ namespace App\Http\Controllers;
 use GuzzleHttp\Client as Client;
 use Illuminate\Http\Request;
 
+Use App\Traits\GoogleToken;
+
 class ExampleController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
+	use GoogleToken;
+
+	/**
+	 * Create a new controller instance.
+	 *
+	 * @return void
+	 */
+	public function __construct()
+	{
+		//
+	}
 
     public function certificate(Request $request)
     {
@@ -155,4 +159,12 @@ class ExampleController extends Controller
 
         return $result;
     }
+
+	/**
+	* Get google token test
+	*/
+	public function gtoken()
+	{
+		return $this->getToken();
+	}
 }
