@@ -6,6 +6,7 @@
     "type": "project",
     "require": {
         "php": "^7.3|^8.0",
+        "firebase/php-jwt": "^6.3",
         "guzzlehttp/guzzle": "^7.5",
         "laravel/lumen-framework": "^8.3.1",
         "symfony/var-dumper": "^5.4"
