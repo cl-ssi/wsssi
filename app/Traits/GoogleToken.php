@@ -12,6 +12,8 @@ trait GoogleToken
 		$private_key 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY');
 		$client_email 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL');
 
+		chunk_split($private_key, 64, "\n");
+
 		$now_seconds = time();
 		$payload = array(
 			"iss" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL'),
@@ -21,7 +23,7 @@ trait GoogleToken
 			"exp" => $now_seconds+(60*60),  // Maximum expiration time is one hour
 			"uid" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID')
 		);
-		return JWT::encode($payload, env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'), "RS256");
+		return JWT::encode($payload, chunk_split(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'), 64, "\n"), "RS256");
 	}
 
 	public function getUrlBase() {
