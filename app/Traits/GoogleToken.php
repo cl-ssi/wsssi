@@ -19,10 +19,10 @@ trait GoogleToken
 			"aud" => "https://healthcare.googleapis.com/",
 			"iat" => $now_seconds,
 			"exp" => $now_seconds+(60*60),  // Maximum expiration time is one hour
-			"uid" => $private_key
+			"uid" => $private_key_id
 		);
 		// return $private_key;
-		return JWT::encode($payload, chunk_split(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'), 64, "\n"), "RS256");
+		return JWT::encode($payload, $private_key, "RS256");
 	}
 
 	public function getUrlBase() {
