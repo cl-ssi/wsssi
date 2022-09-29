@@ -9,19 +9,19 @@ trait GoogleToken
 	public function getToken()
 	{
 		$private_key_id = env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID');
-		$private_key 	= openssl_get_privatekey(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'));
+		$private_key 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY');
 		$client_email 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL');
 
 		$now_seconds = time();
 		$payload = array(
-			"iss" => $client_email,
-			"sub" => $client_email,
+			"iss" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL'),
+			"sub" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL'),
 			"aud" => "https://healthcare.googleapis.com/",
 			"iat" => $now_seconds,
 			"exp" => $now_seconds+(60*60),  // Maximum expiration time is one hour
-			"uid" => $private_key_id
+			"uid" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID')
 		);
-		return JWT::encode($payload, $private_key, "RS256");
+		return JWT::encode($payload, env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'), "RS256");
 	}
 
 	public function getUrlBase() {
