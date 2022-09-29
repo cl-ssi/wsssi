@@ -9,20 +9,20 @@ trait GoogleToken
 	public function getToken()
 	{
 		$private_key_id = env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID');
-		$private_key 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY');
+		$private_key 	= str_replace('\n',"\n",(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY')));
 		$client_email 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL');
 		
 		$now_seconds = time();
 		$payload = array(
-			"iss" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL'),
-			"sub" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL'),
+			"iss" => $client_email,
+			"sub" => $client_email,
 			"aud" => "https://healthcare.googleapis.com/",
 			"iat" => $now_seconds,
 			"exp" => $now_seconds+(60*60),  // Maximum expiration time is one hour
-			"uid" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID')
+			"uid" => $private_key
 		);
-		return (env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'));
-		//return JWT::encode($payload, chunk_split(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'), 64, "\n"), "RS256");
+		// return $private_key;
+		return JWT::encode($payload, chunk_split(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'), 64, "\n"), "RS256");
 	}
 
 	public function getUrlBase() {
