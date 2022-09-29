@@ -13,17 +13,18 @@
 |
 */
 
-$router->get('/',function(){
-	return 'hello world';
+$router->get('/', function () {
+    return 'hello world';
 });
 
-$router->get('/fonasa','FonasaController@certificate');
+$router->get('/fonasa', 'FonasaController@certificate');
+$router->get('/test', 'ExampleController@certificate');
 
-$router->get('/rayen-urgencia','RayenUrgenciaController@getStatus');
+$router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
 
 $router->group(['prefix' => 'api/'], function () use ($router) {
-    $router->get('login/','UsersController@authenticate');
-    $router->post('todo/','TodoController@store');
+    $router->get('login/', 'UsersController@authenticate');
+    $router->post('todo/', 'TodoController@store');
     $router->get('todo/', 'TodoController@index');
     $router->get('todo/{id}/', 'TodoController@show');
     $router->put('todo/{id}/', 'TodoController@update');
