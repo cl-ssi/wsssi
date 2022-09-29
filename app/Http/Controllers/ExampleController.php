@@ -88,7 +88,7 @@ class ExampleController extends Controller
             }
 
             return isset($user)
-                ? response()->json(['user' => $user, 'fhir' => $fhir->total, 'find' => $result['find']])
+                ? response()->json(['user' => $user, 'fhir' => $fhir, 'find' => $result['find']])
                 : response()->json($error);
         }
         else
