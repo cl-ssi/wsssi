@@ -67,33 +67,92 @@ class ExampleController extends Controller
                     else
                         $user['tramo'] = null;
 
-                    $names = explode(" ", $beneficiario->nombres);
-                    $data = [
-                        "resourceType" => "Patient",
-                        "birthDate" => $beneficiario->fechaNacimiento,
-                        "gender" => $beneficiario->generoDes == "Masculino" ? "male" : "female",
-                        "name" => [[
-                            "use" => "official",
-                            "text" => "$beneficiario->nombres $beneficiario->apell1 $beneficiario->apell2",
-                            "family" => "$beneficiario->apell1 $beneficiario->apell2",
-                            "given" => $names
-                        ]]
-                    ];
+                    $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
 
-                    $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
-                    $response = $client->request('POST', 'Patient', [
-                        'json' => $data
-                    ]);
-
-                    $response = $response->getBody()->getContents();
+                    if($result['find'] == true)
+                    {
+                        $fhir = $result['fhir'];
+                    }
+                    else
+                    {
+                        $new = $this->saveFhir($beneficiario);
+                        $fhir = $new['fhir'];
+                    }
                 }
                 else
                     $error = array("error" => $result->getCertificadoPrevisionalResult->replyTO->errorM);
             }
 
-            return isset($user) ? response()->json(['user' => $user, 'response' => $response]) : response()->json($error);
+            return isset($user) ? response()->json(['user' => $user, 'fhir' => $fhir]) : response()->json($error);
         }
         else
            echo "no se especificó el run y el dv como parámetro";
+    }
+
+    public function saveFhir($beneficiario)
+    {
+        $names = explode(" ", $beneficiario->nombres);
+        $data = [
+            "resourceType" => "Patient",
+            "birthDate" => $beneficiario->fechaNacimiento,
+            "gender" => $beneficiario->generoDes == "Masculino" ? "male" : "female",
+            "name" => [[
+                "use" => "official",
+                "text" => "$beneficiario->nombres $beneficiario->apell1 $beneficiario->apell2",
+                "family" => "$beneficiario->apell1 $beneficiario->apell2",
+                "given" => $names
+            ]],
+            "identifier" => [
+                "system" => "http://www.registrocivil.cl/run",
+                "use" => "official",
+                "value" => "$beneficiario->rutbenef-$beneficiario->dgvbenef",
+                "type" => [
+                    "text" => "RUN"
+                ]
+            ]
+        ];
+
+        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+        $response = $client->request('POST', 'Patient', [
+            'json' => $data
+        ]);
+
+        $result['fhir'] = null;
+
+        if($response->getStatusCode() == 201)
+        {
+            $response = $response->getBody()->getContents();
+            $result['fhir'] = json_decode($response);
+        }
+
+        return $result;
+    }
+
+    public function findFhir($run, $dv)
+    {
+        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+        $response = $client->request(
+            'GET',
+            "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv"
+        );
+
+        if($response->getStatusCode() == 200)
+        {
+            $response = $response->getBody()->getContents();
+            $response = json_decode($response);
+
+            if($response->total > 0)
+            {
+                $result['fhir'] = $response;
+                $result['find'] = true;
+            }
+            else
+            {
+                $result['fhir'] = null;
+                $result['find'] = false;
+            }
+        }
+
+        return $result;
     }
 }
