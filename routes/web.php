@@ -22,8 +22,6 @@ $router->get('/test', 'ExampleController@certificate');
 
 $router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
 
-$router->get('/gtoken','ExampleController@gtoken');
-
 $router->group(['prefix' => 'api/'], function () use ($router) {
     $router->get('login/', 'UsersController@authenticate');
     $router->post('todo/', 'TodoController@store');

@@ -164,9 +164,8 @@ class ExampleController extends Controller
 
 	/**
 	* Get google token test
+	* 
+	* return $this->getToken();
+	* 
 	*/
-	public function gtoken()
-	{
-		return $this->getToken();
-	}
 }
