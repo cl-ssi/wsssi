@@ -163,9 +163,12 @@ class ExampleController extends Controller
     }
 
 	/**
-	* Get google token test
+	* Get Token y Fhir URL
+	* 
+	* use GoogleToken;
 	* 
 	* return $this->getToken();
+	* return $this->getUrlBase();
 	* 
 	*/
 }
