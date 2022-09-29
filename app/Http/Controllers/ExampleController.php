@@ -167,6 +167,6 @@ class ExampleController extends Controller
 	*/
 	public function gtoken()
 	{
-		return $this->getToken();
+		//return $this->getToken();
 	}
 }

@@ -11,9 +11,7 @@ trait GoogleToken
 		$private_key_id = env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID');
 		$private_key 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY');
 		$client_email 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL');
-
-		chunk_split($private_key, 64, "\n");
-
+		
 		$now_seconds = time();
 		$payload = array(
 			"iss" => env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL'),
