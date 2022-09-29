@@ -87,7 +87,9 @@ class ExampleController extends Controller
                     $error = array("error" => $result->getCertificadoPrevisionalResult->replyTO->errorM);
             }
 
-            return isset($user) ? response()->json(['user' => $user, 'fhir' => $fhir]) : response()->json($error);
+            return isset($user)
+                ? response()->json(['user' => $user, 'fhir' => $fhir, 'find' => $result['find']])
+                : response()->json($error);
         }
         else
            echo "no se especificó el run y el dv como parámetro";
