@@ -13,6 +13,7 @@ trait GoogleToken
 		$client_email 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL');
 		
 		$now_seconds = time();
+		
 		$payload = array(
 			"iss" => $client_email,
 			"sub" => $client_email,
@@ -21,7 +22,7 @@ trait GoogleToken
 			"exp" => $now_seconds+(60*60),  // Maximum expiration time is one hour
 			"uid" => $private_key_id
 		);
-		// return $private_key;
+
 		return JWT::encode($payload, $private_key, "RS256");
 	}
 
