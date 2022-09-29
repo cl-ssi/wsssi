@@ -9,7 +9,7 @@ trait GoogleToken
 	public function getToken()
 	{
 		$private_key_id = env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID');
-		$private_key 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY');
+		$private_key 	= openssl_get_privatekey(env('GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY'));
 		$client_email 	= env('GOOGLE_CLOUD_SERVICE_ACCOUNT_CLIENT_EMAIL');
 
 		$now_seconds = time();
