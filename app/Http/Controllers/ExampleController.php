@@ -126,7 +126,7 @@ class ExampleController extends Controller
             'POST',
             'Patient', [
                 'json' => $data,
-                'headers' => [ 'Authorization' => 'Bearer ' . $this->gtoken() ],
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
             ]
         );
 
@@ -148,7 +148,7 @@ class ExampleController extends Controller
             'GET',
             "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv",
             [
-                'headers' => [ 'Authorization' => 'Bearer ' . $this->gtoken() ],
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
             ]
         );
 
@@ -200,18 +200,25 @@ class ExampleController extends Controller
             'Patient',
             [
                 'json' => $data,
-                'headers' => [ 'Authorization' => 'Bearer ' . $this->gtoken() ],
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
             ]
         );
 
         return response()->json($response->getBody()->getContents());
     }
 
+    public function url()
+    {
+        return $this->getUrlBase();
+    }
+
 	/**
-	* Get google token test
+	* Get Token y Fhir URL
+	*
+	* use GoogleToken;
+	*
+	* return $this->getToken();
+	* return $this->getUrlBase();
+	*
 	*/
-	public function gtoken()
-	{
-		return $this->getToken();
-	}
 }

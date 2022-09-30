@@ -20,10 +20,9 @@ $router->get('/', function () {
 $router->get('/fonasa', 'FonasaController@certificate');
 $router->get('/certificate', 'ExampleController@certificate');
 $router->get('/test', 'ExampleController@test');
+$router->get('/url', 'ExampleController@url');
 
 $router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
-
-$router->get('/gtoken','ExampleController@gtoken');
 
 $router->group(['prefix' => 'api/'], function () use ($router) {
     $router->get('login/', 'UsersController@authenticate');
