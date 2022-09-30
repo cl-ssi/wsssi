@@ -5,10 +5,13 @@ use GuzzleHttp\Client as Client;
 use Illuminate\Http\Request;
 
 Use App\Traits\GoogleToken;
+use FFI;
 
 class ExampleController extends Controller
 {
 	use GoogleToken;
+    public $url = "https://healthcare.googleapis.com/v1/projects/saludiquique/locations/us-central1/datasets/chile/fhirStores/test/fhir/";
+    // public $url = "http://hapi.fhir.org/baseR4/";
 
 	/**
 	 * Create a new controller instance.
@@ -108,20 +111,24 @@ class ExampleController extends Controller
                 "family" => "$beneficiario->apell1 $beneficiario->apell2",
                 "given" => $names
             ]],
-            "identifier" => [
+            "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
                 "use" => "official",
                 "value" => "$beneficiario->rutbenef-$beneficiario->dgvbenef",
                 "type" => [
                     "text" => "RUN"
                 ]
-            ]
+            ]]
         ];
 
         $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
-        $response = $client->request('POST', 'Patient', [
-            'json' => $data
-        ]);
+        $response = $client->request(
+            'POST',
+            'Patient', [
+                'json' => $data,
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
+            ]
+        );
 
         $result['fhir'] = null;
 
@@ -136,10 +143,13 @@ class ExampleController extends Controller
 
     public function findFhir($run, $dv)
     {
-        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+        $client = new Client(['base_uri' => $this->url]);
         $response = $client->request(
             'GET',
-            "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv"
+            "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv",
+            [
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
+            ]
         );
 
         if($response->getStatusCode() == 200)
@@ -162,13 +172,53 @@ class ExampleController extends Controller
         return $result;
     }
 
+    public function test()
+    {
+        $data = [
+            "resourceType" => "Patient",
+            "birthDate" => "2022-02-14",
+            "gender" => "male",
+            "name" => [[
+                "use" => "official",
+                "text" => "RAFAEL IVAN DELGADO DORANTE",
+                "family" => "DELGADO DORANTE",
+                "given" => ["RAFAEL", "IVAN"]
+            ]],
+            "identifier" => [[
+                "system" => "http://www.registrocivil.cl/run",
+                "use" => "official",
+                "value" => "24465355-0",
+                "type" => [
+                    "text" => "RUN"
+                ]
+            ]]
+        ];
+
+        $client = new Client(['base_uri' => $this->url]);
+        $response = $client->request(
+            'POST',
+            'Patient',
+            [
+                'json' => $data,
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
+            ]
+        );
+
+        return response()->json($response->getBody()->getContents());
+    }
+
+    public function url()
+    {
+        return $this->getUrlBase();
+    }
+
 	/**
 	* Get Token y Fhir URL
-	* 
+	*
 	* use GoogleToken;
-	* 
+	*
 	* return $this->getToken();
 	* return $this->getUrlBase();
-	* 
+	*
 	*/
 }
