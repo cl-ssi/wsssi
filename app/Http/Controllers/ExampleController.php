@@ -121,7 +121,7 @@ class ExampleController extends Controller
             ]]
         ];
 
-        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+        $client = new Client(['base_uri' => $this->url]);
         $response = $client->request(
             'POST',
             'Patient', [
