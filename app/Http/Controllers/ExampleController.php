@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\FhirService;
 use App\Traits\GoogleToken;
 use Illuminate\Http\Request;
 use App\Services\FonasaService;
@@ -31,13 +32,14 @@ class ExampleController extends Controller
 
             if ($response['error'] == false)
             {
-                $result = $this->findFhir($request->input('run'), $request->input('dv'));
+                $fhir = new FhirService;
+                $result = $fhir->find($request->input('run'), $request->input('dv'));
 
                 if ($result['find'] == true)
                     $fhir = $result['fhir'];
                 else
                 {
-                    $new = $this->saveFhir($response['user']);
+                    $new = $fhir->save($response['user']);
                     $fhir = $new['fhir'];
                 }
             }
@@ -105,14 +107,14 @@ class ExampleController extends Controller
                     else
                         $user['tramo'] = null;
 
-                    $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
+                    // $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
 
                     if ($result['find'] == true)
                         $fhir = $result['fhir'];
                     else
                     {
-                        $new = $this->saveFhir($beneficiario);
-                        $fhir = $new['fhir'];
+                        // $new = $this->saveFhir($beneficiario);
+                        // $fhir = $new['fhir'];
                     }
                 }
                 else
@@ -127,86 +129,10 @@ class ExampleController extends Controller
             echo "no se especificó el run y el dv como parámetro";
     }
 
-    public function saveFhir($person)
-    {
-        $names = explode(" ", $person['name']);
-        $data = [
-            "resourceType" => "Patient",
-            "birthDate" => $person['birthday'],
-            "gender" => ($person['gender'] == "Masculino") ? "male" : "female",
-            "name" => [[
-                "use" => "temp", //temp
-                "text" => $person['name'] . " " . $person['fathers_family'] . " " .$person['mothers_family'],
-                "family" => $person['fathers_family'] . " " . $person['mothers_family'],
-                "given" => $names
-            ]],
-            "identifier" => [[
-                "system" => "http://www.registrocivil.cl/run",
-                "use" => "temp",
-                "value" => $person['run'] . "-" . $person['dv'],
-                "type" => [
-                    "text" => "RUN"
-                ]
-            ]]
-        ];
-
-        $client = new Client(['base_uri' => $this->getUrlBase()]);
-        $response = $client->request(
-            'POST',
-            'Patient',
-            [
-                'json' => $data,
-                'headers' => ['Authorization' => 'Bearer ' . $this->getToken()],
-            ]
-        );
-
-        $result['fhir'] = null;
-
-        if ($response->getStatusCode() == 201)
-        {
-            $response = $response->getBody()->getContents();
-            $result['fhir'] = json_decode($response);
-        }
-
-        return $result;
-    }
-
-    public function findFhir($run, $dv)
-    {
-        $client = new Client(['base_uri' => $this->getUrlBase()]);
-        $response = $client->request(
-            'GET',
-            "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv",
-            [
-                'headers' => ['Authorization' => 'Bearer ' . $this->getToken()],
-            ]
-        );
-
-        if ($response->getStatusCode() == 200)
-        {
-            $response = $response->getBody()->getContents();
-            $response = json_decode($response);
-
-            if ($response->total >= 1)
-            {
-                $result['fhir'] = $response;
-                $result['find'] = true;
-                // $result['id'] = $response->id;
-            }
-            else
-            {
-                $result['fhir'] = null;
-                $result['find'] = false;
-                $result['id'] = null;
-            }
-        }
-
-        return $result;
-    }
-
     public function update()
     {
-        $result = $this->findFhir("15287582", "7");
+        $fhir = new FhirService;;
+        $result = $fhir->find("15287582", "7");
 
         if ($result['find'] == true)
         {
