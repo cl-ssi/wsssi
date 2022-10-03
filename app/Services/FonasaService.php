@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Services;
+
+class FonasaService
+{
+    public $rut;
+    public $dv;
+
+    public function __construct($rut, $dv)
+    {
+        $this->rut = $rut;
+        $this->dv = $dv;
+    }
+
+    public function getPerson()
+    {
+        $wsdl = 'wsdl/fonasa/CertificadorPrevisionalSoap.wsdl';
+        $client = new \SoapClient($wsdl, array('trace' => TRUE));
+        $parameters = array(
+            "query" => array(
+                "queryTO" => array(
+                    "tipoEmisor"  => 3,
+                    "tipoUsuario" => 2
+                ),
+                "entidad"           => env('FONASA_ENTIDAD'),
+                "claveEntidad"      => env('FONASA_CLAVE'),
+                "rutBeneficiario"   => $this->rut,
+                "dgvBeneficiario"   => $this->dv,
+                "canal"             => 3
+            )
+        );
+        $result = $client->getCertificadoPrevisional($parameters);
+
+        if ($result === false)
+        {
+            $response['user'] = null;
+            $response['error'] = true;
+            $response['message'] = "No se pudo conectar a FONASA";
+
+            // $error = array("error" => "No se pudo conectar a FONASA");
+        }
+        else
+        {
+            if($result->getCertificadoPrevisionalResult->replyTO->estado == 0)
+            {
+                $certificado            = $result->getCertificadoPrevisionalResult;
+                $beneficiario           = $certificado->beneficiarioTO;
+                $afiliado               = $certificado->afiliadoTO;
+
+                $user['run']            = $beneficiario->rutbenef;
+                $user['dv']             = $beneficiario->dgvbenef;
+                $user['name']           = $beneficiario->nombres;
+                $user['fathers_family'] = $beneficiario->apell1;
+                $user['mothers_family'] = $beneficiario->apell2;
+                $user['birthday']       = $beneficiario->fechaNacimiento;
+                $user['gender']         = $beneficiario->generoDes;
+                $user['desRegion']      = $beneficiario->desRegion;
+                $user['desComuna']      = $beneficiario->desComuna;
+                $user['direccion']      = $beneficiario->direccion;
+                $user['telefono']       = $beneficiario->telefono;
+
+                if($afiliado->desEstado == 'ACTIVO')
+                    $user['tramo'] = $afiliado->tramo;
+                else
+                    $user['tramo'] = null;
+
+                $response['user'] = $user;
+                $response['error'] = false;
+                $response['message'] = null;
+
+                // $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
+
+                // if($result['find'] == true)
+                //     $fhir = $result['fhir'];
+                // else
+                // {
+                //     // $new = $this->saveFhir($beneficiario);
+                //     $fhir = $new['fhir'];
+                // }
+            }
+            else
+            {
+                $response['user'] = null;
+                $response['error'] = true;
+                $response['message'] =  $result->getCertificadoPrevisionalResult->replyTO->errorM;
+                // $error = array("error" => $result->getCertificadoPrevisionalResult->replyTO->errorM);
+            }
+        }
+
+        return $response;
+    }
+
+}

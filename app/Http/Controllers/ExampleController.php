@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Services\FonasaService;
 use GuzzleHttp\Client as Client;
 use Illuminate\Http\Request;
 
@@ -20,15 +22,30 @@ class ExampleController extends Controller
 		//
 	}
 
+    public function query(Request $request)
+    {
+        if($request->has('run') AND $request->has('dv'))
+        {
+            $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
+            $result = $fonasa->getPerson();
+
+            return ($result['error'] == true)
+                ? response()->json($result['message'])
+                : response()->json(['user' => $result['user']]);
+        }
+        else
+           return response()->json("No se especificó el run y el dv como parámetro");
+    }
+
     public function certificate(Request $request)
     {
         if($request->has('run') AND $request->has('dv'))
         {
             $rut = $request->input('run');
-            $dv  = $request->input('dv');
+            $dv = $request->input('dv');
 
             $wsdl = 'wsdl/fonasa/CertificadorPrevisionalSoap.wsdl';
-            $client = new \SoapClient($wsdl,array('trace'=>TRUE));
+            $client = new \SoapClient($wsdl, array('trace' => TRUE));
             $parameters = array(
                 "query" => array(
                     "queryTO" => array(
@@ -61,10 +78,10 @@ class ExampleController extends Controller
                     $user['mothers_family'] = $beneficiario->apell2;
                     $user['birthday']       = $beneficiario->fechaNacimiento;
                     $user['gender']         = $beneficiario->generoDes;
-                    $user['desRegion']         = $beneficiario->desRegion;
-                    $user['desComuna']         = $beneficiario->desComuna;
+                    $user['desRegion']      = $beneficiario->desRegion;
+                    $user['desComuna']      = $beneficiario->desComuna;
                     $user['direccion']      = $beneficiario->direccion;
-                    $user['telefono']      = $beneficiario->telefono;
+                    $user['telefono']       = $beneficiario->telefono;
 
                     if($afiliado->desEstado == 'ACTIVO')
                         $user['tramo'] = $afiliado->tramo;
@@ -74,9 +91,7 @@ class ExampleController extends Controller
                     $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
 
                     if($result['find'] == true)
-                    {
                         $fhir = $result['fhir'];
-                    }
                     else
                     {
                         $new = $this->saveFhir($beneficiario);
@@ -110,7 +125,7 @@ class ExampleController extends Controller
             ]],
             "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
-                "use" => "official",
+                "use" => "temp",
                 "value" => "$beneficiario->rutbenef-$beneficiario->dgvbenef",
                 "type" => [
                     "text" => "RUN"
@@ -140,7 +155,7 @@ class ExampleController extends Controller
 
     public function findFhir($run, $dv)
     {
-        $client = new Client(['base_uri' => $this->getUrlBase()]);
+        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
         $response = $client->request(
             'GET',
             "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv",
@@ -158,15 +173,64 @@ class ExampleController extends Controller
             {
                 $result['fhir'] = $response;
                 $result['find'] = true;
+                $result['id'] = $response->id;
             }
             else
             {
                 $result['fhir'] = null;
                 $result['find'] = false;
+                $result['id'] = null;
             }
         }
 
         return $result;
+    }
+
+    public function update()
+    {
+        $result = $this->findFhir("15287582", "7");
+
+        if($result['find'] == true)
+        {
+            // return response()->json($result['fhir']);
+            // $obj = json_decode($result['fhir']);
+
+            $qtyNames = count($result['fhir']->entry[0]->resource->name);
+            $idFhir = $result['fhir']->entry[0]->resource->id;
+
+            $data = [
+                [
+                    "op" => "replace",
+                    "path" => "/birthDate",
+                    "value" => "1998-01-14"
+                ],
+                [
+                    "op" => "add",
+                    "path" => "/name/0",
+                    "value" => [
+                        "use" => "temp",
+                        "text" => "ÁLVARO RAYMUNDO EDGARDO TORRES FUCHSLOCHER",
+                    ]
+                ]
+            ];
+
+            $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+            $response = $client->request(
+                'PATCH',
+                "Patient/" . $idFhir,
+                [
+                    'json' => $data,
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->getToken(),
+                        'Content-Type' => 'application/json-patch+json'
+                    ],
+                ]
+            );
+
+            return response()->json(json_decode($response->getBody()->getContents()));
+        }
+
+        return response()->json(['find' => false]);
     }
 
 	/**
