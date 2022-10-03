@@ -37,8 +37,6 @@ class FonasaService
             $response['user'] = null;
             $response['error'] = true;
             $response['message'] = "No se pudo conectar a FONASA";
-
-            // $error = array("error" => "No se pudo conectar a FONASA");
         }
         else
         {
@@ -68,23 +66,12 @@ class FonasaService
                 $response['user'] = $user;
                 $response['error'] = false;
                 $response['message'] = null;
-
-                // $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
-
-                // if($result['find'] == true)
-                //     $fhir = $result['fhir'];
-                // else
-                // {
-                //     // $new = $this->saveFhir($beneficiario);
-                //     $fhir = $new['fhir'];
-                // }
             }
             else
             {
                 $response['user'] = null;
                 $response['error'] = true;
                 $response['message'] =  $result->getCertificadoPrevisionalResult->replyTO->errorM;
-                // $error = array("error" => $result->getCertificadoPrevisionalResult->replyTO->errorM);
             }
         }
 
