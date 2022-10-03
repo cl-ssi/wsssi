@@ -146,7 +146,7 @@ class ExampleController extends Controller
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     $idFhir = $responseFhir['fhir']->entry[0]->resource->id;
 
-                    return response()->json($responseFonasa['user']);
+                    return response()->json($responseFonasa['user']['fathers_family']);
 
                     $data = [
                         [
