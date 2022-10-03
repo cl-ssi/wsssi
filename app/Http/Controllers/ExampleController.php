@@ -25,7 +25,7 @@ class ExampleController extends Controller
 
     public function query(Request $request)
     {
-        if ($request->has('run') and $request->has('dv'))
+        if ($request->has('run') && $request->has('dv'))
         {
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
             $response = $fonasa->getPerson();
@@ -131,64 +131,57 @@ class ExampleController extends Controller
 
     public function update(Request $request)
     {
-        if ($request->has('run') and $request->has('dv'))
+        if($request->has('run') && $request->has('dv'))
         {
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
-            $response = $fonasa->getPerson();
-
-            return response()->json($response);
+            $responseFonasa = $fonasa->getPerson();
 
             $fhir = new FhirService;
-            $result = $fhir->find("15287582", "7");
+            $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
 
-            if ($result['find'] == true)
+            if($responseFonasa['error'] == false)
             {
-                // return response()->json($result['fhir']);
-                // $obj = json_decode($result['fhir']);
+                if($responseFhir['find'] == true)
+                {
+                    $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
+                    $idFhir = $responseFhir['fhir']->entry[0]->resource->id;
 
-                $qtyNames = count($result['fhir']->entry[0]->resource->name);
-                $idFhir = $result['fhir']->entry[0]->resource->id;
+                    return response()->json($responseFonasa['user']);
 
-                $data = [
-                    [
-                        "op" => "replace",
-                        "path" => "/birthDate",
-                        "value" => "1998-01-14"
-                    ],
-                    [
-                        "op" => "add",
-                        "path" => "/name/0",
-                        "value" => [
-                            "use" => "official",
-                            "text" => "ÁLVARO RAYMUNDO EDGARDO TORRES FUCHSLOCHER",
+                    $data = [
+                        [
+                            "op" => "add",
+                            "path" => "/name/0",
+                            "value" => [
+                                "use" => "official",
+                                "text" => "",
+                            ]
                         ]
-                    ]
-                ];
+                    ];
 
-                $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
-                $response = $client->request(
-                    'PATCH',
-                    "Patient/" . $idFhir,
-                    [
-                        'json' => $data,
-                        'headers' => [
-                            'Authorization' => 'Bearer ' . $this->getToken(),
-                            'Content-Type' => 'application/json-patch+json'
-                        ],
-                    ]
-                );
+                    $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
+                    $response = $client->request(
+                        'PATCH',
+                        "Patient/" . $idFhir,
+                        [
+                            'json' => $data,
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $this->getToken(),
+                                'Content-Type' => 'application/json-patch+json'
+                            ],
+                        ]
+                    );
 
-                return response()->json(json_decode($response->getBody()->getContents()));
+                    return response()->json(json_decode($response->getBody()->getContents()));
+                }
+                else
+                {
+                    // guardar en fhir y actualizar agregar el name con use official
+                }
             }
-            else
-            {
-                return response()->json("No fue encontrado en Fhir");
-            }
+            return response()->json($responseFonasa['message']);
         }
-        else
-        {
-            return response()->json("No se especificó el run y el dv como parámetro");
-        }
+        return response()->json("No se especificó el run y el dv como parámetro");
     }
 
     /**
