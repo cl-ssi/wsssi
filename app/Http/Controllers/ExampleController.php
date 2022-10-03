@@ -173,7 +173,7 @@ class ExampleController extends Controller
                         );
                     }
 
-                    return response()->json(json_decode($response->getBody()->getContents()));
+                    return response()->json($responseFhir['fhir']);
                 }
                 else
                 {
