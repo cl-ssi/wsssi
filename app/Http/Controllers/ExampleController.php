@@ -159,7 +159,7 @@ class ExampleController extends Controller
                             ]
                         ]];
 
-                        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
+                        $client = new Client(['base_uri' => $this->getUrlBase()]);
                         $response = $client->request(
                             'PATCH',
                             "Patient/" . $idFhir,
