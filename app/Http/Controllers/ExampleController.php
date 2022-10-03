@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FonasaService;
-use GuzzleHttp\Client as Client;
-use Illuminate\Http\Request;
-
 use App\Traits\GoogleToken;
+use Illuminate\Http\Request;
+use App\Services\FonasaService;
+
+use GuzzleHttp\Client as Client;
 
 class ExampleController extends Controller
 {
@@ -29,24 +29,26 @@ class ExampleController extends Controller
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
             $response = $fonasa->getPerson();
 
-            // if ($response['error'] == false)
-            // {
-            //     $result = $this->findFhir($request->input('run'), $request->input('dv'));
+            if ($response['error'] == false)
+            {
+                $result = $this->findFhir($request->input('run'), $request->input('dv'));
 
-            //     if ($result['find'] == true)
-            //         $fhir = $result['fhir'];
-            //     else
-            //     {
-            //         $new = $this->saveFhir($response);
-            //         $fhir = $new['fhir'];
-            //     }
-            // }
+                if ($result['find'] == true)
+                    $fhir = $result['fhir'];
+                else
+                {
+                    $new = $this->saveFhir($response);
+                    $fhir = $new['fhir'];
+                }
+            }
 
             return ($response['error'] == true)
                 ? response()->json($response['message'])
-                : response()->json(
-                    $response['user']
-                );
+                : response()->json([
+                    'user' => $response['user'],
+                    'fhir' => $fhir,
+                    'find' => $response['find'],
+                ]);
         }
         else
             return response()->json("No se especificó el run y el dv como parámetro");
@@ -125,23 +127,23 @@ class ExampleController extends Controller
             echo "no se especificó el run y el dv como parámetro";
     }
 
-    public function saveFhir($beneficiario)
+    public function saveFhir($person)
     {
-        $names = explode(" ", $beneficiario->nombres);
+        $names = explode(" ", $person['name']);
         $data = [
             "resourceType" => "Patient",
-            "birthDate" => $beneficiario->fechaNacimiento,
-            "gender" => $beneficiario->generoDes == "Masculino" ? "male" : "female",
+            "birthDate" => $person['birthday'],
+            "gender" => $person['gender'] == "Masculino" ? "male" : "female",
             "name" => [[
-                "use" => "official",
-                "text" => "$beneficiario->nombres $beneficiario->apell1 $beneficiario->apell2",
-                "family" => "$beneficiario->apell1 $beneficiario->apell2",
+                "use" => "temp", //temp
+                "text" => $person['name'] . " " . $person['fathers_family'] . " " .$person['mothers_family'],
+                "family" => $person['fathers_family'] . " " . $person['mothers_family'],
                 "given" => $names
             ]],
             "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
                 "use" => "temp",
-                "value" => "$beneficiario->rutbenef-$beneficiario->dgvbenef",
+                "value" => $person['run'] . "-" . $person['dv'],
                 "type" => [
                     "text" => "RUN"
                 ]
@@ -171,7 +173,7 @@ class ExampleController extends Controller
 
     public function findFhir($run, $dv)
     {
-        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+        $client = new Client(['base_uri' => $this->getUrlBase()]);
         $response = $client->request(
             'GET',
             "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv",
@@ -230,7 +232,7 @@ class ExampleController extends Controller
                 ]
             ];
 
-            $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']);
+            $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
             $response = $client->request(
                 'PATCH',
                 "Patient/" . $idFhir,
