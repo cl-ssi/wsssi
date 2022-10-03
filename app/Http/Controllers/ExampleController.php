@@ -37,7 +37,7 @@ class ExampleController extends Controller
                     $fhir = $result['fhir'];
                 else
                 {
-                    $new = $this->saveFhir($response);
+                    $new = $this->saveFhir($response['user']);
                     $fhir = $new['fhir'];
                 }
             }
@@ -133,7 +133,7 @@ class ExampleController extends Controller
         $data = [
             "resourceType" => "Patient",
             "birthDate" => $person['birthday'],
-            "gender" => $person['gender'] == "Masculino" ? "male" : "female",
+            "gender" => ($person['gender'] == "Masculino") ? "male" : "female",
             "name" => [[
                 "use" => "temp", //temp
                 "text" => $person['name'] . " " . $person['fathers_family'] . " " .$person['mothers_family'],
