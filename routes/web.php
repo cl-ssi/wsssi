@@ -19,6 +19,7 @@ $router->get('/', function () {
 
 $router->get('/fonasa', 'FonasaController@certificate');
 $router->get('/certificate', 'ExampleController@certificate');
+$router->get('/query', 'ExampleController@query');
 
 $router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
 
