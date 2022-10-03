@@ -6,40 +6,55 @@ use App\Services\FonasaService;
 use GuzzleHttp\Client as Client;
 use Illuminate\Http\Request;
 
-Use App\Traits\GoogleToken;
+use App\Traits\GoogleToken;
 
 class ExampleController extends Controller
 {
-	use GoogleToken;
+    use GoogleToken;
 
-	/**
-	 * Create a new controller instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		//
-	}
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
 
     public function query(Request $request)
     {
-        if($request->has('run') AND $request->has('dv'))
+        if ($request->has('run') and $request->has('dv'))
         {
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
-            $result = $fonasa->getPerson();
+            $response = $fonasa->getPerson();
 
-            return ($result['error'] == true)
-                ? response()->json($result['message'])
-                : response()->json(['user' => $result['user']]);
+            // if ($response['error'] == false)
+            // {
+            //     $result = $this->findFhir($request->input('run'), $request->input('dv'));
+
+            //     if ($result['find'] == true)
+            //         $fhir = $result['fhir'];
+            //     else
+            //     {
+            //         $new = $this->saveFhir($response);
+            //         $fhir = $new['fhir'];
+            //     }
+            // }
+
+            return ($response['error'] == true)
+                ? response()->json($response['message'])
+                : response()->json(
+                    $response['user']
+                );
         }
         else
-           return response()->json("No se especificó el run y el dv como parámetro");
+            return response()->json("No se especificó el run y el dv como parámetro");
     }
 
     public function certificate(Request $request)
     {
-        if($request->has('run') AND $request->has('dv'))
+        if ($request->has('run') and $request->has('dv'))
         {
             $rut = $request->input('run');
             $dv = $request->input('dv');
@@ -65,7 +80,7 @@ class ExampleController extends Controller
                 $error = array("error" => "No se pudo conectar a FONASA");
             else
             {
-                if($result->getCertificadoPrevisionalResult->replyTO->estado == 0)
+                if ($result->getCertificadoPrevisionalResult->replyTO->estado == 0)
                 {
                     $certificado            = $result->getCertificadoPrevisionalResult;
                     $beneficiario           = $certificado->beneficiarioTO;
@@ -83,14 +98,14 @@ class ExampleController extends Controller
                     $user['direccion']      = $beneficiario->direccion;
                     $user['telefono']       = $beneficiario->telefono;
 
-                    if($afiliado->desEstado == 'ACTIVO')
+                    if ($afiliado->desEstado == 'ACTIVO')
                         $user['tramo'] = $afiliado->tramo;
                     else
                         $user['tramo'] = null;
 
                     $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
 
-                    if($result['find'] == true)
+                    if ($result['find'] == true)
                         $fhir = $result['fhir'];
                     else
                     {
@@ -107,7 +122,7 @@ class ExampleController extends Controller
                 : response()->json($error);
         }
         else
-           echo "no se especificó el run y el dv como parámetro";
+            echo "no se especificó el run y el dv como parámetro";
     }
 
     public function saveFhir($beneficiario)
@@ -136,15 +151,16 @@ class ExampleController extends Controller
         $client = new Client(['base_uri' => $this->getUrlBase()]);
         $response = $client->request(
             'POST',
-            'Patient', [
+            'Patient',
+            [
                 'json' => $data,
-                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
+                'headers' => ['Authorization' => 'Bearer ' . $this->getToken()],
             ]
         );
 
         $result['fhir'] = null;
 
-        if($response->getStatusCode() == 201)
+        if ($response->getStatusCode() == 201)
         {
             $response = $response->getBody()->getContents();
             $result['fhir'] = json_decode($response);
@@ -160,16 +176,16 @@ class ExampleController extends Controller
             'GET',
             "Patient?identifier=http://www.registrocivil.cl/run|$run-$dv",
             [
-                'headers' => [ 'Authorization' => 'Bearer ' . $this->getToken() ],
+                'headers' => ['Authorization' => 'Bearer ' . $this->getToken()],
             ]
         );
 
-        if($response->getStatusCode() == 200)
+        if ($response->getStatusCode() == 200)
         {
             $response = $response->getBody()->getContents();
             $response = json_decode($response);
 
-            if($response->total >= 1)
+            if ($response->total >= 1)
             {
                 $result['fhir'] = $response;
                 $result['find'] = true;
@@ -190,7 +206,7 @@ class ExampleController extends Controller
     {
         $result = $this->findFhir("15287582", "7");
 
-        if($result['find'] == true)
+        if ($result['find'] == true)
         {
             // return response()->json($result['fhir']);
             // $obj = json_decode($result['fhir']);
@@ -233,13 +249,13 @@ class ExampleController extends Controller
         return response()->json(['find' => false]);
     }
 
-	/**
-	* Get Token y Fhir URL
-	*
-	* use GoogleToken;
-	*
-	* return $this->getToken();
-	* return $this->getUrlBase();
-	*
-	*/
+    /**
+     * Get Token y Fhir URL
+     *
+     * use GoogleToken;
+     *
+     * return $this->getToken();
+     * return $this->getUrlBase();
+     *
+     */
 }
