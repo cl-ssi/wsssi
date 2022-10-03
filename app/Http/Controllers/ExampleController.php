@@ -47,7 +47,7 @@ class ExampleController extends Controller
                 : response()->json([
                     'user' => $response['user'],
                     'fhir' => $fhir,
-                    'find' => $response['find'],
+                    'find' => $result['find'],
                 ]);
         }
         else
