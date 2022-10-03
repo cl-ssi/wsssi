@@ -146,37 +146,38 @@ class ExampleController extends Controller
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     $idFhir = $responseFhir['fhir']->entry[0]->resource->id;
 
-                    return response()->json($responseFonasa['user']['fathers_family']);
+                    $fullname = $responseFonasa['user']['name'] . " " . $responseFonasa['user']['fathers_family'] . " " . $responseFonasa['user']['mothers_family'];
 
-                    $data = [
-                        [
+                    if($qtyNames == 1)
+                    {
+                        $data = [[
                             "op" => "add",
                             "path" => "/name/0",
                             "value" => [
                                 "use" => "official",
-                                "text" => "",
+                                "text" => $fullname,
                             ]
-                        ]
-                    ];
+                        ]];
 
-                    $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
-                    $response = $client->request(
-                        'PATCH',
-                        "Patient/" . $idFhir,
-                        [
-                            'json' => $data,
-                            'headers' => [
-                                'Authorization' => 'Bearer ' . $this->getToken(),
-                                'Content-Type' => 'application/json-patch+json'
-                            ],
-                        ]
-                    );
+                        $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
+                        $response = $client->request(
+                            'PATCH',
+                            "Patient/" . $idFhir,
+                            [
+                                'json' => $data,
+                                'headers' => [
+                                    'Authorization' => 'Bearer ' . $this->getToken(),
+                                    'Content-Type' => 'application/json-patch+json'
+                                ],
+                            ]
+                        );
+                    }
 
                     return response()->json(json_decode($response->getBody()->getContents()));
                 }
                 else
                 {
-                    // guardar en fhir y actualizar agregar el name con use official
+                    // guardar en fhir y actualizar agregar el name de fonasa como use official
                 }
             }
             return response()->json($responseFonasa['message']);
