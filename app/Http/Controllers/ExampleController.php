@@ -129,52 +129,66 @@ class ExampleController extends Controller
             echo "no se especificó el run y el dv como parámetro";
     }
 
-    public function update()
+    public function update(Request $request)
     {
-        $fhir = new FhirService;;
-        $result = $fhir->find("15287582", "7");
-
-        if ($result['find'] == true)
+        if ($request->has('run') and $request->has('dv'))
         {
-            // return response()->json($result['fhir']);
-            // $obj = json_decode($result['fhir']);
+            $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
+            $response = $fonasa->getPerson();
 
-            $qtyNames = count($result['fhir']->entry[0]->resource->name);
-            $idFhir = $result['fhir']->entry[0]->resource->id;
+            return response()->json($response);
 
-            $data = [
-                [
-                    "op" => "replace",
-                    "path" => "/birthDate",
-                    "value" => "1998-01-14"
-                ],
-                [
-                    "op" => "add",
-                    "path" => "/name/0",
-                    "value" => [
-                        "use" => "temp",
-                        "text" => "ÁLVARO RAYMUNDO EDGARDO TORRES FUCHSLOCHER",
-                    ]
-                ]
-            ];
+            $fhir = new FhirService;
+            $result = $fhir->find("15287582", "7");
 
-            $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
-            $response = $client->request(
-                'PATCH',
-                "Patient/" . $idFhir,
-                [
-                    'json' => $data,
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $this->getToken(),
-                        'Content-Type' => 'application/json-patch+json'
+            if ($result['find'] == true)
+            {
+                // return response()->json($result['fhir']);
+                // $obj = json_decode($result['fhir']);
+
+                $qtyNames = count($result['fhir']->entry[0]->resource->name);
+                $idFhir = $result['fhir']->entry[0]->resource->id;
+
+                $data = [
+                    [
+                        "op" => "replace",
+                        "path" => "/birthDate",
+                        "value" => "1998-01-14"
                     ],
-                ]
-            );
+                    [
+                        "op" => "add",
+                        "path" => "/name/0",
+                        "value" => [
+                            "use" => "official",
+                            "text" => "ÁLVARO RAYMUNDO EDGARDO TORRES FUCHSLOCHER",
+                        ]
+                    ]
+                ];
 
-            return response()->json(json_decode($response->getBody()->getContents()));
+                $client = new Client(['base_uri' => 'http://hapi.fhir.org/baseR4/']); // $this->getUrlBase()
+                $response = $client->request(
+                    'PATCH',
+                    "Patient/" . $idFhir,
+                    [
+                        'json' => $data,
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . $this->getToken(),
+                            'Content-Type' => 'application/json-patch+json'
+                        ],
+                    ]
+                );
+
+                return response()->json(json_decode($response->getBody()->getContents()));
+            }
+            else
+            {
+                return response()->json("No fue encontrado en Fhir");
+            }
         }
-
-        return response()->json(['find' => false]);
+        else
+        {
+            return response()->json("No se especificó el run y el dv como parámetro");
+        }
     }
 
     /**
