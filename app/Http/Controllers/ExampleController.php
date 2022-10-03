@@ -191,7 +191,7 @@ class ExampleController extends Controller
             {
                 $result['fhir'] = $response;
                 $result['find'] = true;
-                $result['id'] = $response->id;
+                // $result['id'] = $response->id;
             }
             else
             {
