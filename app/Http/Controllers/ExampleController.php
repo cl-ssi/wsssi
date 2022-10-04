@@ -144,7 +144,8 @@ class ExampleController extends Controller
                 if($responseFhir['find'] == true)
                 {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
-                    $idFhir = $responseFhir['fhir']->entry[0]->resource->id;
+                    $idFhir = $responseFhir['idFhir'];
+                    return $idFhir;
 
                     $fullname = $responseFonasa['user']['name'] . " " . $responseFonasa['user']['fathers_family'] . " " . $responseFonasa['user']['mothers_family'];
 
@@ -171,13 +172,10 @@ class ExampleController extends Controller
                                 ],
                             ]
                         );
-
-                        return response()->json("Paciente Actualizado: $fullname");
                     }
 
                     return response()->json([
-                        $responseFhir['fhir'],
-                        $qtyNames
+                        $responseFhir['fhir']
                     ]);
                 }
                 else
