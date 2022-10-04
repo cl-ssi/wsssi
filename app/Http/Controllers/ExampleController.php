@@ -129,15 +129,25 @@ class ExampleController extends Controller
             echo "no se especificó el run y el dv como parámetro";
     }
 
-    public function update(Request $request)
+    public function storePatientOnFhir(Request $request)
     {
-        if($request->has('run') && $request->has('dv'))
+        $rolUnico = json_decode($request->RolUnico, true);
+        $name = json_decode($request->name, true);
+
+        $run = $rolUnico['numero'];
+        $dv = $rolUnico['DV'];
+        
+        $names = implode(" ", $name['nombres']);
+        $lastname = implode(" ", $name['apellidos']);
+        $fullname = "$names $lastname";
+
+        if($run && $dv)
         {
-            $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
+            $fonasa = new FonasaService($run, $dv);
             $responseFonasa = $fonasa->getPerson();
 
             $fhir = new FhirService;
-            $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
+            $responseFhir = $fhir->find($run, $dv);
 
             if($responseFonasa['error'] == false)
             {
@@ -145,22 +155,22 @@ class ExampleController extends Controller
                 {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     if($qtyNames == 1)
-                        $error = $fhir->updateName($request->fullname, $responseFhir['idFhir']);
+                        $error = $fhir->updateName($fullname, $responseFhir['idFhir']);
                 }
                 else
                 {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    $fhir->updateName($request->fullname, $newFhir['fhir']->id);
+                    $fhir->updateName($fullname, $newFhir['fhir']->id);
                 }
 
-                $find = $fhir->find($request->input('run'), $request->input('dv'));
+                $find = $fhir->find($run, $dv);
 
                 return response()->json($find['fhir']);
             }
 
-            return response()->json($responseFonasa['message']);
+            return response()->json($responseFonasa['message'], 400);
         }
-        return response()->json("No se especificó el run y el dv como parámetro");
+        return response()->json("No se especificó el run y el dv como parámetro", 400);
     }
 
     /**
