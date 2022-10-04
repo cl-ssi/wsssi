@@ -28,28 +28,28 @@ class ExampleController extends Controller
         if ($request->has('run') && $request->has('dv'))
         {
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
-            $response = $fonasa->getPerson();
+            $responseFonasa = $fonasa->getPerson();
 
-            if ($response['error'] == false)
+            if ($responseFonasa['error'] == false)
             {
                 $fhir = new FhirService;
-                $result = $fhir->find($request->input('run'), $request->input('dv'));
+                $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
 
-                if ($result['find'] == true)
-                    $fhir = $result['fhir'];
+                if ($responseFhir['find'] == true)
+                    $fhir = $responseFhir['fhir'];
                 else
                 {
-                    $new = $fhir->save($response['user']);
+                    $new = $fhir->save($responseFonasa['user']);
                     $fhir = $new['fhir'];
                 }
             }
 
-            return ($response['error'] == true)
-                ? response()->json($response['message'])
+            return ($responseFonasa['error'] == true)
+                ? response()->json($responseFonasa['message'])
                 : response()->json([
-                    'user' => $response['user'],
+                    'user' => $responseFonasa['user'],
                     'fhir' => $fhir,
-                    'find' => $result['find'],
+                    'find' => $responseFhir['find'],
                 ]);
         }
         else
@@ -141,48 +141,29 @@ class ExampleController extends Controller
 
             if($responseFonasa['error'] == false)
             {
+                $idFhir = $responseFhir['idFhir'];
+                $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
+                $fullname = $responseFonasa['user']['name'] . " " . $responseFonasa['user']['fathers_family'] . " " . $responseFonasa['user']['mothers_family'];
+
                 if($responseFhir['find'] == true)
                 {
-                    $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
-                    $idFhir = $responseFhir['idFhir'];
-                    return $idFhir;
-
-                    $fullname = $responseFonasa['user']['name'] . " " . $responseFonasa['user']['fathers_family'] . " " . $responseFonasa['user']['mothers_family'];
-
+                    $fhir = $responseFhir['fhir'];
                     if($qtyNames == 1)
-                    {
-                        $data = [[
-                            "op" => "add",
-                            "path" => "/name/0",
-                            "value" => [
-                                "use" => "official",
-                                "text" => $fullname,
-                            ]
-                        ]];
-
-                        $client = new Client(['base_uri' => $this->getUrlBase()]);
-                        $response = $client->request(
-                            'PATCH',
-                            "Patient/" . $idFhir,
-                            [
-                                'json' => $data,
-                                'headers' => [
-                                    'Authorization' => 'Bearer ' . $this->getToken(),
-                                    'Content-Type' => 'application/json-patch+json'
-                                ],
-                            ]
-                        );
-                    }
-
-                    return response()->json([
-                        $responseFhir['fhir']
-                    ]);
+                        $error = $fhir->updateName($fullname, $idFhir);
                 }
                 else
                 {
-                    // guardar en fhir y actualizar agregar el name de fonasa como use official
+                    $newFhir = $fhir->save($responseFonasa['user']);
+                    $fhir = $newFhir['fhir'];
+                    return response()->json($fhir);
+                    // $fhir->updateName($fullname, $idFhir);
                 }
+
+                $find = $fhir->find($request->input('run'), $request->input('dv'));
+
+                return response()->json($find['fhir']);
             }
+
             return response()->json($responseFonasa['message']);
         }
         return response()->json("No se especificó el run y el dv como parámetro");
