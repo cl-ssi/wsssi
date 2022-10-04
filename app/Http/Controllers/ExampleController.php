@@ -141,18 +141,16 @@ class ExampleController extends Controller
 
             if($responseFonasa['error'] == false)
             {
-                $fullname = $responseFonasa['user']['name'] . " " . $responseFonasa['user']['fathers_family'] . " " . $responseFonasa['user']['mothers_family'];
-
                 if($responseFhir['find'] == true)
                 {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     if($qtyNames == 1)
-                        $error = $fhir->updateName($fullname, $responseFhir['idFhir']);
+                        $error = $fhir->updateName($request->fullname, $responseFhir['idFhir']);
                 }
                 else
                 {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    $fhir->updateName($fullname, $newFhir['fhir']->id);
+                    $fhir->updateName($request->fullname, $newFhir['fhir']->id);
                 }
 
                 $find = $fhir->find($request->input('run'), $request->input('dv'));
