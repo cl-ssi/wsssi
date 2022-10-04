@@ -171,6 +171,8 @@ class ExampleController extends Controller
                                 ],
                             ]
                         );
+
+                        return response()->json("Paciente Actualizado: $fullname");
                     }
 
                     return response()->json([
