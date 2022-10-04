@@ -131,11 +131,8 @@ class ExampleController extends Controller
 
     public function storePatientOnFhir(Request $request)
     {
-        return response()->json($request->RolUnico);
-        $rolUnico = json_decode($request->RolUnico, true);
-        $name = json_decode($request->name, true);
-
-        return response()->json($rolUnico);
+        $rolUnico = $request->RolUnico;
+        $name = $request->name;
 
         $run = $rolUnico['numero'];
         $dv = $rolUnico['DV'];
