@@ -22,7 +22,7 @@ class FhirService
             "birthDate" => $person['birthday'],
             "gender" => ($person['gender'] == "Masculino") ? "male" : "female",
             "name" => [[
-                "use" => "temp", //temp
+                "use" => "temp",
                 "text" => $person['name'] . " " . $person['fathers_family'] . " " .$person['mothers_family'],
                 "family" => $person['fathers_family'] . " " . $person['mothers_family'],
                 "given" => $names
@@ -78,6 +78,7 @@ class FhirService
             {
                 $result['fhir'] = $response;
                 $result['find'] = true;
+                $result['idFhir']->entry[0]->resource->id
                 // $result['id'] = $response->id;
             }
             else
@@ -87,7 +88,11 @@ class FhirService
                 $result['id'] = null;
             }
         }
-
         return $result;
+    }
+
+    public function updateName()
+    {
+
     }
 }
