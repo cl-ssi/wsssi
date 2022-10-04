@@ -134,9 +134,11 @@ class ExampleController extends Controller
         $rolUnico = json_decode($request->RolUnico, true);
         $name = json_decode($request->name, true);
 
+        return response()->json($rolUnico);
+
         $run = $rolUnico['numero'];
         $dv = $rolUnico['DV'];
-        
+
         $names = implode(" ", $name['nombres']);
         $lastname = implode(" ", $name['apellidos']);
         $fullname = "$names $lastname";
