@@ -152,7 +152,10 @@ class ExampleController extends Controller
                 else
                 {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    return response()->json($newFhir['fhir']);
+                    return response()->json([
+                        "Paciente guardado",
+                        $newFhir['fhir']->id,
+                    ]);
                     $fhir->updateName($fullname, $newFhir['fhir']['id']);
                     return response()->json("El paciente fue guardado");
                 }
