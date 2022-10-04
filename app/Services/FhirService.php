@@ -11,21 +11,35 @@ class FhirService
 
     public function __construct()
     {
-
     }
 
     public function save($person)
     {
         $names = explode(" ", $person['name']);
+        $fullname = $person['name'] . " " . $person['fathers_family'] . " " . $person['mothers_family'];
+        $family = $person['fathers_family'] . " " . $person['mothers_family'];
+
         $data = [
             "resourceType" => "Patient",
             "birthDate" => $person['birthday'],
             "gender" => ($person['gender'] == "Masculino") ? "male" : "female",
             "name" => [[
                 "use" => "temp",
-                "text" => $person['name'] . " " . $person['fathers_family'] . " " .$person['mothers_family'],
-                "family" => $person['fathers_family'] . " " . $person['mothers_family'],
-                "given" => $names
+                "text" => $fullname,
+                "family" => $family,
+                "given" => $names,
+                "_family" => [
+                    "extension" => [
+                        [
+                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
+                            "valueString" => $person['fathers_family']
+                        ],
+                        [
+                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
+                            "valueString" => $person['mothers_family']
+                        ]
+                    ]
+                ],
             ]],
             "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
@@ -90,14 +104,34 @@ class FhirService
         return $result;
     }
 
-    public function updateName($fullname, $idFhir)
+    public function updateName($name, $idFhir)
     {
+        $names = implode(" ", $name['nombres']);
+        $family = implode(" ", $name['apellidos']);
+        $fullname = "$names $family";
+        $fathers_family = $name['apellidos'][0];
+        $mothers_family = (count($name['apellidos']) == 2) ? $name['apellidos'][1] : "";
+
         $data = [[
             "op" => "add",
             "path" => "/name/0",
             "value" => [
                 "use" => "official",
                 "text" => $fullname,
+                "family" => $family,
+                "given" => $name['nombres'],
+                "_family" => [
+                    "extension" => [
+                        [
+                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
+                            "valueString" => $fathers_family
+                        ],
+                        [
+                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
+                            "valueString" => $mothers_family
+                        ]
+                    ]
+                ],
             ]
         ]];
 
