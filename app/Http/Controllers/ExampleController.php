@@ -146,17 +146,13 @@ class ExampleController extends Controller
                 if($responseFhir['find'] == true)
                 {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
-                    $idFhir = $responseFhir['idFhir'];
-                    $fhir = $responseFhir['fhir'];
                     if($qtyNames == 1)
-                        $error = $fhir->updateName($fullname, $idFhir);
+                        $error = $fhir->updateName($fullname, $responseFhir['idFhir']);
                 }
                 else
                 {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    $fhir = $newFhir['fhir'];
-                    return response()->json($fhir);
-                    // $fhir->updateName($fullname, $idFhir);
+                    $fhir->updateName($fullname, $newFhir['fhir']['id']);
                 }
 
                 $find = $fhir->find($request->input('run'), $request->input('dv'));
