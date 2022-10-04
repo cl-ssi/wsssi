@@ -131,17 +131,10 @@ class ExampleController extends Controller
 
     public function storePatientOnFhir(Request $request)
     {
-        $rolUnico = $request->RolUnico;
-        $name = $request->name;
+        $run = $request->RolUnico['numero'];
+        $dv = $request->RolUnico['DV'];
 
-        $run = $rolUnico['numero'];
-        $dv = $rolUnico['DV'];
-
-        $names = implode(" ", $name['nombres']);
-        $lastname = implode(" ", $name['apellidos']);
-        $fullname = "$names $lastname";
-
-        if($run && $dv)
+        if(isset($run) && isset($dv))
         {
             $fonasa = new FonasaService($run, $dv);
             $responseFonasa = $fonasa->getPerson();
@@ -155,12 +148,12 @@ class ExampleController extends Controller
                 {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     if($qtyNames == 1)
-                        $error = $fhir->updateName($fullname, $responseFhir['idFhir']);
+                        $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
                 }
                 else
                 {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    $fhir->updateName($fullname, $newFhir['fhir']->id);
+                    $fhir->updateName($request->name, $newFhir['fhir']->id);
                 }
 
                 $find = $fhir->find($run, $dv);
