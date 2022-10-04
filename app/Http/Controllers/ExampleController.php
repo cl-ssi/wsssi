@@ -173,7 +173,10 @@ class ExampleController extends Controller
                         );
                     }
 
-                    return response()->json($responseFhir['fhir']);
+                    return response()->json([
+                        $responseFhir['fhir'],
+                        $qtyNames
+                    ]);
                 }
                 else
                 {
