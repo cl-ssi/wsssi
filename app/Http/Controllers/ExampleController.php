@@ -25,20 +25,17 @@ class ExampleController extends Controller
 
     public function query(Request $request)
     {
-        if ($request->has('run') && $request->has('dv'))
-        {
+        if ($request->has('run') && $request->has('dv')) {
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
             $responseFonasa = $fonasa->getPerson();
 
-            if ($responseFonasa['error'] == false)
-            {
+            if ($responseFonasa['error'] == false) {
                 $fhir = new FhirService;
                 $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
 
                 if ($responseFhir['find'] == true)
                     $fhir = $responseFhir['fhir'];
-                else
-                {
+                else {
                     $new = $fhir->save($responseFonasa['user']);
                     $fhir = $new['fhir'];
                 }
@@ -51,15 +48,13 @@ class ExampleController extends Controller
                     'fhir' => $fhir,
                     'find' => $responseFhir['find'],
                 ]);
-        }
-        else
+        } else
             return response()->json("No se especificó el run y el dv como parámetro");
     }
 
     public function certificate(Request $request)
     {
-        if ($request->has('run') and $request->has('dv'))
-        {
+        if ($request->has('run') and $request->has('dv')) {
             $rut = $request->input('run');
             $dv = $request->input('dv');
 
@@ -82,10 +77,8 @@ class ExampleController extends Controller
 
             if ($result === false)
                 $error = array("error" => "No se pudo conectar a FONASA");
-            else
-            {
-                if ($result->getCertificadoPrevisionalResult->replyTO->estado == 0)
-                {
+            else {
+                if ($result->getCertificadoPrevisionalResult->replyTO->estado == 0) {
                     $certificado            = $result->getCertificadoPrevisionalResult;
                     $beneficiario           = $certificado->beneficiarioTO;
                     $afiliado               = $certificado->afiliadoTO;
@@ -111,21 +104,18 @@ class ExampleController extends Controller
 
                     if ($result['find'] == true)
                         $fhir = $result['fhir'];
-                    else
-                    {
+                    else {
                         // $new = $this->saveFhir($beneficiario);
                         // $fhir = $new['fhir'];
                     }
-                }
-                else
+                } else
                     $error = array("error" => $result->getCertificadoPrevisionalResult->replyTO->errorM);
             }
 
             return isset($user)
                 ? response()->json(['user' => $user, 'fhir' => $fhir, 'find' => $result['find']])
                 : response()->json($error);
-        }
-        else
+        } else
             echo "no se especificó el run y el dv como parámetro";
     }
 
@@ -134,30 +124,26 @@ class ExampleController extends Controller
         $run = $request->RolUnico['numero'];
         $dv = $request->RolUnico['DV'];
 
-        if(isset($run) && isset($dv))
-        {
+        if (isset($run) && isset($dv)) {
             $fonasa = new FonasaService($run, $dv);
             $responseFonasa = $fonasa->getPerson();
 
             $fhir = new FhirService;
             $responseFhir = $fhir->find($run, $dv);
 
-            if($responseFonasa['error'] == false)
-            {
-                if($responseFhir['find'] == true)
-                {
+            if ($responseFonasa['error'] == false) {
+                if ($responseFhir['find'] == true) {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
-                    if($qtyNames == 1)
+                    if ($qtyNames == 1)
                         $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
-                }
-                else
-                {
+                } else {
                     $newFhir = $fhir->save($responseFonasa['user']);
                     $fhir->updateName($request->name, $newFhir['fhir']->id);
                 }
 
                 $find = $fhir->find($run, $dv);
 
+                app('log')->channel('slack')->notice("$run-$dv", $request->name);
                 return response()->json($find['fhir']);
             }
 
