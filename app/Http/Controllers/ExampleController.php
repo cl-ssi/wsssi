@@ -171,6 +171,8 @@ class ExampleController extends Controller
                                 ],
                             ]
                         );
+
+                        return response()->json("Ya fue actualizado");
                     }
 
                     return response()->json([
