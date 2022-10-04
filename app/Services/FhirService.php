@@ -78,7 +78,7 @@ class FhirService
             {
                 $result['fhir'] = $response;
                 $result['find'] = true;
-                $result['idFhir']->entry[0]->resource->id
+                $result['idFhir'] = $response->entry[0]->resource->id;
                 // $result['id'] = $response->id;
             }
             else
