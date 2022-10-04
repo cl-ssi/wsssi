@@ -79,7 +79,6 @@ class FhirService
                 $result['fhir'] = $response;
                 $result['find'] = true;
                 $result['idFhir'] = $response->entry[0]->resource->id;
-                // $result['id'] = $response->id;
             }
             else
             {
@@ -91,8 +90,34 @@ class FhirService
         return $result;
     }
 
-    public function updateName()
+    public function updateName($fullname, $idFhir)
     {
+        $data = [[
+            "op" => "add",
+            "path" => "/name/0",
+            "value" => [
+                "use" => "official",
+                "text" => $fullname,
+            ]
+        ]];
 
+        $client = new Client(['base_uri' => $this->getUrlBase()]);
+        $response = $client->request(
+            'PATCH',
+            "Patient/" . $idFhir,
+            [
+                'json' => $data,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->getToken(),
+                    'Content-Type' => 'application/json-patch+json'
+                ],
+            ]
+        );
+
+        $error = true;
+        if ($response->getStatusCode() == 200)
+            $error = false;
+
+        return $error;
     }
 }
