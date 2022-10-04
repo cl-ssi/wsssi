@@ -141,12 +141,12 @@ class ExampleController extends Controller
 
             if($responseFonasa['error'] == false)
             {
-                $idFhir = $responseFhir['idFhir'];
-                $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                 $fullname = $responseFonasa['user']['name'] . " " . $responseFonasa['user']['fathers_family'] . " " . $responseFonasa['user']['mothers_family'];
 
                 if($responseFhir['find'] == true)
                 {
+                    $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
+                    $idFhir = $responseFhir['idFhir'];
                     $fhir = $responseFhir['fhir'];
                     if($qtyNames == 1)
                         $error = $fhir->updateName($fullname, $idFhir);
