@@ -109,7 +109,7 @@ class FhirService
         $names = implode(" ", $name['nombres']);
         $family = implode(" ", $name['apellidos']);
         $fullname = "$names $family";
-        $fathers_family = $name['apellidos'][0];
+        $fathers_family = (count($name['apellidos']) >= 1) ? $name['apellidos'][0] : "";
         $mothers_family = (count($name['apellidos']) == 2) ? $name['apellidos'][1] : "";
 
         $data = [[
