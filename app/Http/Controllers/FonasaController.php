@@ -2,14 +2,41 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\FonasaService;
 use Illuminate\Http\Request;
 use Auth;
+use Illuminate\Http\Response;
 
 class FonasaController extends Controller
 {
     public function __construct()
     {
         //$this->middleware('auth');
+    }
+
+    /**
+     * New fonasa endpoint certificate.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function testCertificate(Request $request)
+    {
+        if($request->has('run') AND $request->has('dv')) {
+            try {
+                $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
+                $responseFonasa = $fonasa->getPerson();
+
+                return ($responseFonasa['error'] == true)
+                ? response()->json($responseFonasa, Response::HTTP_BAD_REQUEST)
+                : response()->json($responseFonasa['user'], Response::HTTP_OK);
+            } catch (\Throwable $th) {
+                response()->json([
+                    'message' => $th->getMessage(),
+                    'code' => $th->getCode(),
+                    'line' => $th->getLine()
+                ], Response::HTTP_BAD_REQUEST);
+            }
+        }
     }
 
     /**
