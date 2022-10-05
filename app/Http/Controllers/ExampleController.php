@@ -85,7 +85,7 @@ class ExampleController extends Controller
                     }
                 } else {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    $fhir->updateName($request->name, $newFhir['fhir']->id);
+                    $error = $fhir->updateName($request->name, $newFhir['fhir']->id);
                     Log::channel('slack')->notice("El paciente $run-$dv fue creado en Fhir", $request->name);
                 }
 
