@@ -9,20 +9,22 @@ class FhirService
 {
     use GoogleToken;
 
-    public function __construct()
-    {
-    }
-
     public function save($person)
     {
         $names = explode(" ", $person['name']);
-        $fullname = $person['name'] . " " . $person['fathers_family'] . " " . $person['mothers_family'];
-        $family = $person['fathers_family'] . " " . $person['mothers_family'];
+        $person['gender'] = isset($person['gender']) ? $person['gender'] : "";
+        $person['fathers_family'] = isset($person['fathers_family']) ? $person['fathers_family'] : "";
+        $birthDate = ($person['birthday'] != null) ? $person['birthday'] : "";
+        $fullname = $person['name'] . " " . $person['fathers_family'];
+        $fullname = isset($person['mothers_family']) ? $fullname . " " . $person['mothers_family'] : $fullname;
+        $family = (isset($person['fathers_family']) && isset($person['mothers_family'])) ? $person['fathers_family'] . " " . $person['mothers_family'] : "";
+        $mothersFamily = ($person['mothers_family'] != null) ? $person['mothers_family'] : "";
+        $fathersFamily = ($person['fathers_family'] != null) ? $person['fathers_family'] : "";
 
         $data = [
             "resourceType" => "Patient",
-            "birthDate" => $person['birthday'],
-            "gender" => ($person['gender'] == "Masculino") ? "male" : "female",
+            "birthDate" => $birthDate,
+            "gender" => ($person['gender'] == "Masculino" || $person['gender'] == "male") ? "male" : "female",
             "name" => [[
                 "use" => "temp",
                 "text" => $fullname,
@@ -32,11 +34,11 @@ class FhirService
                     "extension" => [
                         [
                             "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
-                            "valueString" => $person['fathers_family']
+                            "valueString" => $fathersFamily
                         ],
                         [
                             "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
-                            "valueString" => $person['mothers_family']
+                            "valueString" => $mothersFamily
                         ]
                     ]
                 ],
@@ -109,8 +111,8 @@ class FhirService
         $names = implode(" ", $name['nombres']);
         $family = implode(" ", $name['apellidos']);
         $fullname = "$names $family";
-        $fathers_family = (count($name['apellidos']) >= 1) ? $name['apellidos'][0] : "";
-        $mothers_family = (count($name['apellidos']) == 2) ? $name['apellidos'][1] : "";
+        $fathersFamily = (count($name['apellidos']) >= 1) ? $name['apellidos'][0] : "";
+        $mothersFamily = (count($name['apellidos']) == 2) ? $name['apellidos'][1] : "";
 
         $data = [[
             "op" => "replace",
@@ -124,11 +126,11 @@ class FhirService
                     "extension" => [
                         [
                             "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
-                            "valueString" => $fathers_family
+                            "valueString" => $fathersFamily
                         ],
                         [
                             "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
-                            "valueString" => $mothers_family
+                            "valueString" => $mothersFamily
                         ]
                     ]
                 ],

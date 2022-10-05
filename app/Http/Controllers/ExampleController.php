@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Services\FonasaService;
 
 use GuzzleHttp\Client as Client;
+use Illuminate\Http\Response;
 
 class ExampleController extends Controller
 {
@@ -23,7 +24,11 @@ class ExampleController extends Controller
         //
     }
 
-    public function query(Request $request)
+    /**
+     * Nuevo certificate para FonasaController.
+     * Busca el run en fonasa y lo agrega como nombre "temp" en Fhir.
+     */
+    public function certificate(Request $request)
     {
         if ($request->has('run') && $request->has('dv')) {
             $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
@@ -42,83 +47,21 @@ class ExampleController extends Controller
             }
 
             return ($responseFonasa['error'] == true)
-                ? response()->json($responseFonasa['message'])
+                ? response()->json($responseFonasa['message'], Response::HTTP_BAD_REQUEST)
                 : response()->json([
                     'user' => $responseFonasa['user'],
                     'fhir' => $fhir,
                     'find' => $responseFhir['find'],
                 ]);
         } else
-            return response()->json("No se especificó el run y el dv como parámetro");
+            return response()->json("No se especificó el run y el dv como parámetro", Response::HTTP_BAD_REQUEST);
     }
 
-    public function certificate(Request $request)
-    {
-        if ($request->has('run') and $request->has('dv')) {
-            $rut = $request->input('run');
-            $dv = $request->input('dv');
-
-            $wsdl = 'wsdl/fonasa/CertificadorPrevisionalSoap.wsdl';
-            $client = new \SoapClient($wsdl, array('trace' => TRUE));
-            $parameters = array(
-                "query" => array(
-                    "queryTO" => array(
-                        "tipoEmisor"  => 3,
-                        "tipoUsuario" => 2
-                    ),
-                    "entidad"           => env('FONASA_ENTIDAD'),
-                    "claveEntidad"      => env('FONASA_CLAVE'),
-                    "rutBeneficiario"   => $rut,
-                    "dgvBeneficiario"   => $dv,
-                    "canal"             => 3
-                )
-            );
-            $result = $client->getCertificadoPrevisional($parameters);
-
-            if ($result === false)
-                $error = array("error" => "No se pudo conectar a FONASA");
-            else {
-                if ($result->getCertificadoPrevisionalResult->replyTO->estado == 0) {
-                    $certificado            = $result->getCertificadoPrevisionalResult;
-                    $beneficiario           = $certificado->beneficiarioTO;
-                    $afiliado               = $certificado->afiliadoTO;
-
-                    $user['run']            = $beneficiario->rutbenef;
-                    $user['dv']             = $beneficiario->dgvbenef;
-                    $user['name']           = $beneficiario->nombres;
-                    $user['fathers_family'] = $beneficiario->apell1;
-                    $user['mothers_family'] = $beneficiario->apell2;
-                    $user['birthday']       = $beneficiario->fechaNacimiento;
-                    $user['gender']         = $beneficiario->generoDes;
-                    $user['desRegion']      = $beneficiario->desRegion;
-                    $user['desComuna']      = $beneficiario->desComuna;
-                    $user['direccion']      = $beneficiario->direccion;
-                    $user['telefono']       = $beneficiario->telefono;
-
-                    if ($afiliado->desEstado == 'ACTIVO')
-                        $user['tramo'] = $afiliado->tramo;
-                    else
-                        $user['tramo'] = null;
-
-                    // $result = $this->findFhir($beneficiario->rutbenef, $beneficiario->dgvbenef);
-
-                    if ($result['find'] == true)
-                        $fhir = $result['fhir'];
-                    else {
-                        // $new = $this->saveFhir($beneficiario);
-                        // $fhir = $new['fhir'];
-                    }
-                } else
-                    $error = array("error" => $result->getCertificadoPrevisionalResult->replyTO->errorM);
-            }
-
-            return isset($user)
-                ? response()->json(['user' => $user, 'fhir' => $fhir, 'find' => $result['find']])
-                : response()->json($error);
-        } else
-            echo "no se especificó el run y el dv como parámetro";
-    }
-
+    /**
+     * Debe llamarse al loguearse con Clave Unica.
+     * Busca el paciente en Fhir si existe, le actualiza el nombre como "official".
+     * Sino lo agrega en Fhir y agrega el nombre como "official".
+     */
     public function storePatientOnFhir(Request $request)
     {
         $run = $request->RolUnico['numero'];
@@ -135,7 +78,10 @@ class ExampleController extends Controller
                 if ($responseFhir['find'] == true) {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     if ($qtyNames == 1)
+                    {
                         $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
+                        app('log')->channel('slack')->notice("$run-$dv", $request->name);
+                    }
                 } else {
                     $newFhir = $fhir->save($responseFonasa['user']);
                     $fhir->updateName($request->name, $newFhir['fhir']->id);
@@ -143,13 +89,39 @@ class ExampleController extends Controller
 
                 $find = $fhir->find($run, $dv);
 
-                app('log')->channel('slack')->notice("$run-$dv", $request->name);
                 return response()->json($find['fhir']);
             }
 
-            return response()->json($responseFonasa['message'], 400);
+            return response()->json($responseFonasa['message'], Response::HTTP_BAD_REQUEST);
         }
-        return response()->json("No se especificó el run y el dv como parámetro", 400);
+        return response()->json("No se especificó el run y el dv como parámetro", Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Para guardar los pacientes en Fhir con nombre "temp".
+     * Este endpoint lo llama el command de Esmeralda
+     */
+    public function storePatientAsTemp(Request $request)
+    {
+        try {
+            if($request->has('run') && $request->has('dv'))
+            {
+                $fhir = new FhirService;
+                $newFhir = $fhir->save($request);
+                $find = $fhir->find($request->run, $request->dv);
+                return response()->json($find['fhir']);
+            }
+            else
+            {
+
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'code' => $th->getCode(),
+                'file' => $th->getFile()
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**

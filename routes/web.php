@@ -20,8 +20,8 @@ $router->get('/', function () {
 
 $router->get('/fonasa', 'FonasaController@certificate');
 $router->get('/certificate', 'ExampleController@certificate');
-$router->get('/query', 'ExampleController@query');
 $router->post('/store-patient-on-fhir', 'ExampleController@storePatientOnFhir');
+$router->post('/store-patient-as-temp', 'ExampleController@storePatientAsTemp');
 
 $router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
 
