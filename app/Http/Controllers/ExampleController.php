@@ -105,10 +105,10 @@ class ExampleController extends Controller
      */
     public function storePatientAsTemp(Request $request)
     {
+        return $request->all();
         try {
             if($request->has('run') && $request->has('dv'))
             {
-                return $request->all();
                 $fhir = new FhirService;
                 $responseFhir = $fhir->find($request->run, $request->dv);
                 if($responseFhir['find'] == false)
