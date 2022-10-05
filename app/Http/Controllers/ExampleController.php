@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FhirService;
 use App\Traits\GoogleToken;
 use Illuminate\Http\Request;
-use App\Services\FonasaService;
-
-use GuzzleHttp\Client as Client;
+use App\Services\FhirService;
 use Illuminate\Http\Response;
+
+use App\Services\FonasaService;
+use GuzzleHttp\Client as Client;
 use Illuminate\Support\Facades\Log;
 
 class ExampleController extends Controller
@@ -109,9 +109,15 @@ class ExampleController extends Controller
             if($request->has('run') && $request->has('dv'))
             {
                 $fhir = new FhirService;
-                $newFhir = $fhir->save($request);
-                $find = $fhir->find($request->run, $request->dv);
-                return response()->json($find['fhir'], Response::HTTP_OK);
+                $responseFhir = $fhir->find($request->run, $request->dv);
+                if($responseFhir['find'] == false)
+                {
+                    $newFhir = $fhir->save($request);
+                    return response()->json($newFhir['fhir'], Response::HTTP_OK);
+                }
+                return response()->json([
+                    'error' => "El paciente $request->run-$request->dv ya existe en Fhir"
+                ], Response::HTTP_BAD_REQUEST);
             }
             else
             {
