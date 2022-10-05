@@ -6,6 +6,7 @@ use App\Services\FonasaService;
 use Illuminate\Http\Request;
 use Auth;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class FonasaController extends Controller
 {
@@ -30,11 +31,13 @@ class FonasaController extends Controller
                 ? response()->json($responseFonasa, Response::HTTP_BAD_REQUEST)
                 : response()->json($responseFonasa['user'], Response::HTTP_OK);
             } catch (\Throwable $th) {
-                response()->json([
+                $error = [
                     'message' => $th->getMessage(),
                     'code' => $th->getCode(),
                     'line' => $th->getLine()
-                ], Response::HTTP_BAD_REQUEST);
+                ];
+                Log::channel('slack')->error("El servicio Fonasa produjo una excepción.", $error);
+                response()->json($error, Response::HTTP_BAD_REQUEST);
             }
         }
     }
