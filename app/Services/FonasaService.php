@@ -16,7 +16,10 @@ class FonasaService
     public function getPerson()
     {
         $wsdl = 'wsdl/fonasa/CertificadorPrevisionalSoap.wsdl';
-        $client = new \SoapClient($wsdl, array('trace' => TRUE));
+        $client = new \SoapClient($wsdl, array(
+            'trace' => TRUE,
+            'connection_timeout'=> 5
+        ));
         $parameters = array(
             "query" => array(
                 "queryTO" => array(
