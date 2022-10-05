@@ -120,11 +120,41 @@ class ExampleController extends Controller
                 ], Response::HTTP_BAD_REQUEST);
             }
         } catch (\Throwable $th) {
-            return response()->json([
+            $error = [
                 'message' => $th->getMessage(),
                 'code' => $th->getCode(),
-                'file' => $th->getFile()
-            ], Response::HTTP_BAD_REQUEST);
+                'line' => $th->getLine()
+            ];
+            Log::channel('slack')->error("La función storePatientAsTemp produjo una excepción", $error);
+            return response()->json($error, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Busca un paciente en Fhir dado un Run y un DV
+     */
+    public function findFhir(Request $request)
+    {
+        try {
+            $fhir = new FhirService;
+            $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
+
+            if ($responseFhir['find'] == true)
+                return response()->json($responseFhir['fhir'], Response::HTTP_OK);
+            else
+            {
+                return response()->json([
+                    'error' => "El paciente $request->input('run')-$request->input('dv') no fue encontrado en Fhir"
+                ], Response::HTTP_BAD_REQUEST);
+            }
+        } catch (\Throwable $th) {
+            $error = [
+                'message' => $th->getMessage(),
+                'code' => $th->getCode(),
+                'line' => $th->getLine()
+            ];
+            Log::channel('slack')->error("La función findFhir produjo una excepción", $error);
+            return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
 
