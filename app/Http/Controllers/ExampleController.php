@@ -108,6 +108,7 @@ class ExampleController extends Controller
         try {
             if($request->has('run') && $request->has('dv'))
             {
+                return $request->all();
                 $fhir = new FhirService;
                 $responseFhir = $fhir->find($request->run, $request->dv);
                 if($responseFhir['find'] == false)
