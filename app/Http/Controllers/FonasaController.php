@@ -37,7 +37,7 @@ class FonasaController extends Controller
                     'line' => $th->getLine()
                 ];
                 Log::channel('slack')->error("El servicio Fonasa produjo una excepción.", $error);
-                response()->json($error, Response::HTTP_BAD_REQUEST);
+                return response()->json($error, Response::HTTP_BAD_REQUEST);
             }
         }
     }
