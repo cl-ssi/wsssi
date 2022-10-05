@@ -113,7 +113,9 @@ class ExampleController extends Controller
             }
             else
             {
-
+                return response()->json([
+                    'error' => 'No se especificó el run y el dv como parámetros'
+                ], Response::HTTP_BAD_REQUEST);
             }
         } catch (\Throwable $th) {
             return response()->json([
