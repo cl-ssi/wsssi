@@ -106,25 +106,17 @@ class ExampleController extends Controller
     public function storePatientAsTemp(Request $request)
     {
         try {
-            if(isset($request->run) && isset($request->dv))
+            $fhir = new FhirService;
+            $responseFhir = $fhir->find($request->run, $request->dv);
+            if($responseFhir['find'] == false)
             {
-                $fhir = new FhirService;
-                $responseFhir = $fhir->find($request->run, $request->dv);
-                if($responseFhir['find'] == false)
-                {
-                    $newFhir = $fhir->save($request);
-                    return response()->json($newFhir['fhir'], Response::HTTP_OK);
-                }
-                return response()->json([
-                    'error' => "El paciente $request->run-$request->dv ya existe en Fhir"
-                ], Response::HTTP_BAD_REQUEST);
+                $newFhir = $fhir->save($request);
+                return response()->json($newFhir['fhir'], Response::HTTP_OK);
             }
-            else
-            {
-                return response()->json([
-                    'error' => 'No se especificó el run y el dv como parámetros'
-                ], Response::HTTP_BAD_REQUEST);
-            }
+            return response()->json([
+                'error' => "El paciente $request->run-$request->dv ya existe en Fhir"
+            ], Response::HTTP_BAD_REQUEST);
+
         } catch (\Throwable $th) {
             $error = [
                 'message' => $th->getMessage(),
