@@ -113,7 +113,7 @@ class FhirService
         $mothers_family = (count($name['apellidos']) == 2) ? $name['apellidos'][1] : "";
 
         $data = [[
-            "op" => "add",
+            "op" => "replace",
             "path" => "/name/0",
             "value" => [
                 "use" => "official",
