@@ -28,8 +28,8 @@ class FonasaController extends Controller
                 $responseFonasa = $fonasa->getPerson();
 
                 return ($responseFonasa['error'] == true)
-                ? response()->json($responseFonasa, Response::HTTP_BAD_REQUEST)
-                : response()->json($responseFonasa['user'], Response::HTTP_OK);
+                    ? response()->json($responseFonasa, Response::HTTP_BAD_REQUEST)
+                    : response()->json($responseFonasa['user'], Response::HTTP_OK);
             } catch (\Throwable $th) {
                 $error = [
                     'message' => $th->getMessage(),
