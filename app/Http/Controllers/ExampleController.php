@@ -9,6 +9,7 @@ use App\Services\FonasaService;
 
 use GuzzleHttp\Client as Client;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class ExampleController extends Controller
 {
@@ -52,7 +53,7 @@ class ExampleController extends Controller
                     'user' => $responseFonasa['user'],
                     'fhir' => $fhir,
                     'find' => $responseFhir['find'],
-                ]);
+                ], Response::HTTP_OK);
         } else
             return response()->json("No se especificó el run y el dv como parámetro", Response::HTTP_BAD_REQUEST);
     }
@@ -80,16 +81,17 @@ class ExampleController extends Controller
                     if ($qtyNames == 1)
                     {
                         $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
-                        app('log')->channel('slack')->notice("$run-$dv", $request->name);
+                        Log::channel('slack')->notice("El paciente $run-$dv fue actualizado en Fhir", $request->name);
                     }
                 } else {
                     $newFhir = $fhir->save($responseFonasa['user']);
-                    $fhir->updateName($request->name, $newFhir['fhir']->id);
+                    $error = $fhir->updateName($request->name, $newFhir['fhir']->id);
+                    Log::channel('slack')->notice("El paciente $run-$dv fue creado en Fhir", $request->name);
                 }
 
                 $find = $fhir->find($run, $dv);
 
-                return response()->json($find['fhir']);
+                return response()->json($find['fhir'], Response::HTTP_OK);
             }
 
             return response()->json($responseFonasa['message'], Response::HTTP_BAD_REQUEST);
@@ -109,7 +111,7 @@ class ExampleController extends Controller
                 $fhir = new FhirService;
                 $newFhir = $fhir->save($request);
                 $find = $fhir->find($request->run, $request->dv);
-                return response()->json($find['fhir']);
+                return response()->json($find['fhir'], Response::HTTP_OK);
             }
             else
             {
