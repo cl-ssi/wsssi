@@ -115,17 +115,16 @@ class ExampleController extends Controller
                     $newFhir = $fhir->save($request);
                     return response()->json($newFhir['fhir'], Response::HTTP_OK);
                 }
+
                 return response()->json([
                     'error' => "El paciente $request->run-$request->dv ya existe en Fhir",
                     'find' => $responseFhir['find']
                 ], Response::HTTP_BAD_REQUEST);
             }
-            else
-            {
-                return response()->json([
-                    'error' => 'No se especificó el run y el dv como parámetros'
-                ], Response::HTTP_BAD_REQUEST);
-            }
+
+            return response()->json([
+                'error' => 'No se especificó el run y el dv como parámetros'
+            ], Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $th) {
             $error = [
                 'message' => $th->getMessage(),
