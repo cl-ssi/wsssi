@@ -11,37 +11,44 @@ class FhirService
 
     public function save($person)
     {
+        $person['name'] = trim($person['name']);
+        $person['fathers_family'] = isset($person['fathers_family']) ? trim($person['fathers_family']) : null;
+        $person['mothers_family'] = isset($person['mothers_family']) ? trim($person['mothers_family']) : null;
         $names = explode(" ", $person['name']);
-        $person['gender'] = isset($person['gender']) ? $person['gender'] : "";
-        $person['fathers_family'] = isset($person['fathers_family']) ? $person['fathers_family'] : "";
-        $birthDate = ($person['birthday'] != null) ? $person['birthday'] : "";
-        $fullname = $person['name'] . " " . $person['fathers_family'];
+        $fullname = isset($person['fathers_family']) ? $person['name'] . " " . $person['fathers_family'] : $person['name'];
         $fullname = isset($person['mothers_family']) ? $fullname . " " . $person['mothers_family'] : $fullname;
-        $family = (isset($person['fathers_family']) && isset($person['mothers_family'])) ? $person['fathers_family'] . " " . $person['mothers_family'] : "";
-        $mothersFamily = ($person['mothers_family'] != null) ? $person['mothers_family'] : "";
-        $fathersFamily = ($person['fathers_family'] != null) ? $person['fathers_family'] : "";
+        $extensionFamily = [];
+
+        if(isset($person['fathers_family']))
+        {
+            $extensionFamily[] = [
+                "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
+                "valueString" => $person['fathers_family']
+            ];
+        }
+
+        if(isset($person['mothers_family']))
+        {
+            $extensionFamily[] = [
+                "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
+                "valueString" => $person['mothers_family']
+            ];
+        }
 
         $data = [
             "resourceType" => "Patient",
-            "birthDate" => $birthDate,
-            "gender" => ($person['gender'] == "Masculino" || $person['gender'] == "male") ? "male" : "female",
             "name" => [[
                 "use" => "temp",
                 "text" => $fullname,
-                "family" => $family,
                 "given" => $names,
-                "_family" => [
+                "_use" => [
                     "extension" => [
                         [
-                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
-                            "valueString" => $fathersFamily
-                        ],
-                        [
-                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
-                            "valueString" => $mothersFamily
+                            "url" => "http:://iquique.com",
+                            "valueString" => "fonasa"
                         ]
                     ]
-                ],
+                ]
             ]],
             "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
@@ -52,6 +59,22 @@ class FhirService
                 ]
             ]]
         ];
+
+        if(count($extensionFamily) >= 1)
+        {
+            $data["name"][0]["_family"] = [
+                "extension" => $extensionFamily
+            ];
+        }
+
+        if($person["birthday"] != null)
+            $data["birthDate"] = $person['birthday'];
+
+        if($person["gender"])
+            $data["gender"] = ($person['gender'] == "Masculino" || $person['gender'] == "male") ? "male" : "female";
+
+        if(isset($person['fathers_family']) && isset($person['mothers_family']))
+            $data["name"][0]["family"] = $person['fathers_family'] . " " . $person['mothers_family'];
 
         $client = new Client(['base_uri' => $this->getUrlBase()]);
         $response = $client->request(

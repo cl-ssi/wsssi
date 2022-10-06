@@ -81,12 +81,10 @@ class ExampleController extends Controller
                     if ($qtyNames == 1)
                     {
                         $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
-                        Log::channel('slack')->notice("El paciente $run-$dv fue actualizado en Fhir", $request->name);
                     }
                 } else {
                     $newFhir = $fhir->save($responseFonasa['user']);
                     $error = $fhir->updateName($request->name, $newFhir['fhir']->id);
-                    Log::channel('slack')->notice("El paciente $run-$dv fue creado en Fhir", $request->name);
                 }
 
                 $find = $fhir->find($run, $dv);
