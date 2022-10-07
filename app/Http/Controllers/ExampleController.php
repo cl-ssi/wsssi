@@ -8,7 +8,6 @@ use App\Services\FhirService;
 use Illuminate\Http\Response;
 
 use App\Services\FonasaService;
-use GuzzleHttp\Client as Client;
 use Illuminate\Support\Facades\Log;
 
 class ExampleController extends Controller
@@ -16,18 +15,10 @@ class ExampleController extends Controller
     use GoogleToken;
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * Nuevo certificate para FonasaController.
      * Busca el run en fonasa y lo agrega como nombre "temp" en Fhir.
+     *
+     * @param \Illuminate\Http\Request  $request
      */
     public function certificate(Request $request)
     {
@@ -62,6 +53,7 @@ class ExampleController extends Controller
      * Debe llamarse al loguearse con Clave Unica.
      * Busca el paciente en Fhir si existe, le actualiza el nombre como "official".
      * Sino lo agrega en Fhir y agrega el nombre como "official".
+     * @param \Illuminate\Http\Request  $request
      */
     public function storePatientOnFhir(Request $request)
     {
@@ -80,6 +72,7 @@ class ExampleController extends Controller
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                     if ($qtyNames == 1)
                     {
+                        // check si es fonasa. si es fonasa lo actualiza a official.
                         $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
                     }
                 } else {
@@ -99,7 +92,9 @@ class ExampleController extends Controller
 
     /**
      * Para guardar los pacientes en Fhir con nombre "temp".
-     * Este endpoint lo llama el command de Esmeralda
+     * Este endpoint lo consume el command del proyecto Esmeralda
+     *
+     * @param \Illuminate\Http\Request  $request
      */
     public function storePatientAsTemp(Request $request)
     {
@@ -136,6 +131,8 @@ class ExampleController extends Controller
 
     /**
      * Busca un paciente en Fhir dado un Run y un DV
+     *
+     * @param \Illuminate\Http\Request  $request
      */
     public function findFhir(Request $request)
     {
@@ -144,7 +141,10 @@ class ExampleController extends Controller
             $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
 
             if ($responseFhir['find'] == true)
+            {
+                return response()->json($responseFhir['fhir']->entry[0]->resource->name[0]["_use"]);
                 return response()->json($responseFhir['fhir'], Response::HTTP_OK);
+            }
             else
             {
                 return response()->json([

@@ -44,7 +44,7 @@ class FhirService
                 "_use" => [
                     "extension" => [
                         [
-                            "url" => "http:://iquique.com",
+                            "url" => "https:://fonasa.cl",
                             "valueString" => "fonasa"
                         ]
                     ]
@@ -129,13 +129,13 @@ class FhirService
         return $result;
     }
 
-    public function updateName($name, $idFhir)
+    public function updateName($person, $idFhir)
     {
-        $names = implode(" ", $name['nombres']);
-        $family = implode(" ", $name['apellidos']);
+        $names = implode(" ", $person['nombres']);
+        $family = implode(" ", $person['apellidos']);
         $fullname = "$names $family";
-        $fathersFamily = (count($name['apellidos']) >= 1) ? $name['apellidos'][0] : "";
-        $mothersFamily = (count($name['apellidos']) == 2) ? $name['apellidos'][1] : "";
+        $fathersFamily = (count($person['apellidos']) >= 1) ? $person['apellidos'][0] : "";
+        $mothersFamily = (count($person['apellidos']) == 2) ? $person['apellidos'][1] : "";
 
         $data = [[
             "op" => "replace",
@@ -144,7 +144,7 @@ class FhirService
                 "use" => "official",
                 "text" => $fullname,
                 "family" => $family,
-                "given" => $name['nombres'],
+                "given" => $person['nombres'],
                 "_family" => [
                     "extension" => [
                         [
@@ -157,6 +157,14 @@ class FhirService
                         ]
                     ]
                 ],
+                "_use" => [
+                    "extension" => [
+                        [
+                            "url" => "https://claveunica.gob.cl/",
+                            "valueString" => "claveunica"
+                        ]
+                    ]
+                ]
             ]
         ]];
 
