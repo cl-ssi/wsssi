@@ -134,38 +134,50 @@ class FhirService
         $names = implode(" ", $person['nombres']);
         $family = implode(" ", $person['apellidos']);
         $fullname = "$names $family";
-        $fathersFamily = (count($person['apellidos']) >= 1) ? $person['apellidos'][0] : "";
-        $mothersFamily = (count($person['apellidos']) == 2) ? $person['apellidos'][1] : "";
+        $extensionFamily = [];
+
+        if(count($person['apellidos']) >= 1)
+        {
+            $extensionFamily[] = [
+                "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
+                "valueString" => $person['apellidos'][0]
+            ];
+        }
+
+        if(count($person['apellidos']) == 2)
+        {
+            $extensionFamily[] = [
+                "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
+                "valueString" => $person['apellidos'][1]
+            ];
+        }
+
+        $resource = [
+            "use" => "official",
+            "text" => $fullname,
+            "family" => $family,
+            "given" => $person['nombres'],
+            "_use" => [
+                "extension" => [
+                    [
+                        "url" => "https://claveunica.gob.cl/",
+                        "valueString" => "claveunica"
+                    ]
+                ]
+            ]
+        ];
+
+        if(count($extensionFamily) >= 1)
+        {
+            $resource["_family"]  = [
+                "extension" => $extensionFamily,
+            ];
+        }
 
         $data = [[
             "op" => "replace",
             "path" => "/name/0",
-            "value" => [
-                "use" => "official",
-                "text" => $fullname,
-                "family" => $family,
-                "given" => $person['nombres'],
-                "_family" => [
-                    "extension" => [
-                        [
-                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-fathers-family",
-                            "valueString" => $fathersFamily
-                        ],
-                        [
-                            "url" => "http://hl7.org/fhir/StructureDefinition/humanname-mothers-family",
-                            "valueString" => $mothersFamily
-                        ]
-                    ]
-                ],
-                "_use" => [
-                    "extension" => [
-                        [
-                            "url" => "https://claveunica.gob.cl/",
-                            "valueString" => "claveunica"
-                        ]
-                    ]
-                ]
-            ]
+            "value" => $resource
         ]];
 
         $client = new Client(['base_uri' => $this->getUrlBase()]);
