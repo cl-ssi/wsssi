@@ -142,7 +142,7 @@ class ExampleController extends Controller
 
             if ($responseFhir['find'] == true)
             {
-                return response()->json($responseFhir['fhir']->entry[0]->resource->name[0]->_use->valueString);
+                return response()->json($responseFhir['fhir']->entry[0]->resource->name[0]->_use->extension->valueString);
                 return response()->json($responseFhir['fhir'], Response::HTTP_OK);
             }
             else
