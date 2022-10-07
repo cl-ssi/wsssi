@@ -70,10 +70,10 @@ class ExampleController extends Controller
             if ($responseFonasa['error'] == false) {
                 if ($responseFhir['find'] == true) {
                     $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
-                    if ($qtyNames == 1)
+                    if ($qtyNames == 1 && $responseFhir['fhir']->entry[0]->resource->name[0]->use != "official")
                     {
-                        // check si es fonasa. si es fonasa lo actualiza a official.
                         $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
+                        Log::channel('slack')->notice("El paciente $run-$dv fue actualizado con nombre oficial.");
                     }
                 } else {
                     $newFhir = $fhir->save($responseFonasa['user']);
@@ -141,10 +141,7 @@ class ExampleController extends Controller
             $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
 
             if ($responseFhir['find'] == true)
-            {
-                return response()->json($responseFhir['fhir']->entry[0]->resource->name[0]->_use->extension[0]->valueString);
                 return response()->json($responseFhir['fhir'], Response::HTTP_OK);
-            }
             else
             {
                 return response()->json([
