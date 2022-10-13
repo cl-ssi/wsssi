@@ -22,31 +22,49 @@ class ExampleController extends Controller
      */
     public function certificate(Request $request)
     {
-        if ($request->has('run') && $request->has('dv')) {
-            $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
-            $responseFonasa = $fonasa->getPerson();
+        try {
+            if ($request->has('run') && $request->has('dv')) {
+                $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
+                $responseFonasa = $fonasa->getPerson();
 
-            if ($responseFonasa['error'] == false) {
-                $fhir = new FhirService;
-                $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
+                if ($responseFonasa['error'] == false) {
+                    $fhir = new FhirService;
+                    $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
 
-                if ($responseFhir['find'] == true)
-                    $fhir = $responseFhir['fhir'];
-                else {
-                    $new = $fhir->save($responseFonasa['user']);
-                    $fhir = $new['fhir'];
+                    if ($responseFhir['find'] == true)
+                        $fhir = $responseFhir['fhir'];
+                    else {
+                        $new = $fhir->save($responseFonasa['user']);
+                        $fhir = $new['fhir'];
+                    }
                 }
-            }
 
-            return ($responseFonasa['error'] == true)
-                ? response()->json($responseFonasa['message'], Response::HTTP_BAD_REQUEST)
-                : response()->json([
+                if ($responseFonasa['error'] == true) {
+                    return response()->json([
+                        'message' => $responseFonasa['message']
+                    ], Response::HTTP_BAD_REQUEST);
+                }
+
+                return response()->json([
                     'user' => $responseFonasa['user'],
                     'fhir' => $fhir,
                     'find' => $responseFhir['find'],
                 ], Response::HTTP_OK);
-        } else
-            return response()->json("No se especificó el run y el dv como parámetro", Response::HTTP_BAD_REQUEST);
+            }
+
+            return response()->json([
+                'message' => 'No se especificó el run y el dv como parámetro'
+            ], Response::HTTP_BAD_REQUEST);
+        } catch (\Throwable $th) {
+            $error = [
+                'message' => $th->getMessage(),
+                'code' => $th->getCode(),
+                'line' => $th->getLine()
+            ];
+            Log::channel('slack')->error("La función certificate de ExampleController produjo una excepción", $error);
+            return response()->json($error, Response::HTTP_BAD_REQUEST);
+        }
+
     }
 
     /**
@@ -57,37 +75,52 @@ class ExampleController extends Controller
      */
     public function storePatientOnFhir(Request $request)
     {
-        $run = $request->RolUnico['numero'];
-        $dv = $request->RolUnico['DV'];
+        try {
+            $run = $request->RolUnico['numero'];
+            $dv = $request->RolUnico['DV'];
 
-        if (isset($run) && isset($dv)) {
-            $fonasa = new FonasaService($run, $dv);
-            $responseFonasa = $fonasa->getPerson();
+            if (isset($run) && isset($dv)) {
+                $fonasa = new FonasaService($run, $dv);
+                $responseFonasa = $fonasa->getPerson();
 
-            $fhir = new FhirService;
-            $responseFhir = $fhir->find($run, $dv);
+                $fhir = new FhirService;
+                $responseFhir = $fhir->find($run, $dv);
 
-            if ($responseFonasa['error'] == false) {
-                if ($responseFhir['find'] == true) {
-                    $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
-                    if ($qtyNames == 1 && $responseFhir['fhir']->entry[0]->resource->name[0]->use != "official")
-                    {
-                        $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
-                        Log::channel('slack')->notice("El paciente $run-$dv fue actualizado con nombre oficial.");
+                if ($responseFonasa['error'] == false) {
+                    if ($responseFhir['find'] == true) {
+                        $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
+                        if ($qtyNames == 1 && $responseFhir['fhir']->entry[0]->resource->name[0]->use != "official") {
+                            $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
+                            Log::channel('slack')->notice("El paciente $run-$dv fue actualizado con nombre oficial");
+                        }
+                    } else {
+                        $newFhir = $fhir->save($responseFonasa['user']);
+                        $error = $fhir->updateName($request->name, $newFhir['fhir']->id);
+                        Log::channel('slack')->notice("El paciente $run-$dv fue agregado con nombre oficial");
                     }
-                } else {
-                    $newFhir = $fhir->save($responseFonasa['user']);
-                    $error = $fhir->updateName($request->name, $newFhir['fhir']->id);
+
+                    return response()->json([
+                        'fhir' => $fhir->find($run, $dv)
+                    ], Response::HTTP_OK);
                 }
 
-                $find = $fhir->find($run, $dv);
-
-                return response()->json($find['fhir'], Response::HTTP_OK);
+                return response()->json([
+                    'message' => $responseFonasa['message']
+                ], Response::HTTP_BAD_REQUEST);
             }
 
-            return response()->json($responseFonasa['message'], Response::HTTP_BAD_REQUEST);
+            return response()->json([
+                'message' => 'No se especificó el run y el dv como parámetro'
+            ], Response::HTTP_BAD_REQUEST);
+        } catch (\Throwable $th) {
+            $error = [
+                'message' => $th->getMessage(),
+                'code' => $th->getCode(),
+                'line' => $th->getLine()
+            ];
+            Log::channel('slack')->error("La función storePatientOnFhir produjo una excepción", $error);
+            return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
-        return response()->json("No se especificó el run y el dv como parámetro", Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -99,24 +132,25 @@ class ExampleController extends Controller
     public function storePatientAsTemp(Request $request)
     {
         try {
-            if(isset($request->run) && isset($request->dv))
-            {
+            if (isset($request->run) && isset($request->dv)) {
                 $fhir = new FhirService;
                 $responseFhir = $fhir->find($request->run, $request->dv);
-                if($responseFhir['find'] == false)
-                {
+                if ($responseFhir['find'] == false) {
                     $newFhir = $fhir->save($request);
-                    return response()->json($newFhir['fhir'], Response::HTTP_OK);
+                    
+                    return response()->json([
+                        'fhir' => $newFhir['fhir']
+                    ], Response::HTTP_OK);
                 }
 
                 return response()->json([
-                    'error' => "El paciente $request->run-$request->dv ya existe en Fhir",
+                    'message' => "El paciente $request->run-$request->dv ya existe en Fhir",
                     'find' => $responseFhir['find']
                 ], Response::HTTP_BAD_REQUEST);
             }
 
             return response()->json([
-                'error' => 'No se especificó el run y el dv como parámetros'
+                'message' => 'No se especificó el run y el dv como parámetros'
             ], Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $th) {
             $error = [
@@ -138,14 +172,13 @@ class ExampleController extends Controller
     {
         try {
             $fhir = new FhirService;
-            $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
+            $responseFhir = $fhir->find($request->run, $request->dv);
 
             if ($responseFhir['find'] == true)
                 return response()->json($responseFhir['fhir'], Response::HTTP_OK);
-            else
-            {
+            else {
                 return response()->json([
-                    'error' => "El paciente $request->input('run')-$request->input('dv') no fue encontrado en Fhir"
+                    'message' => "El paciente $request->run-$request->dv no fue encontrado en Fhir"
                 ], Response::HTTP_BAD_REQUEST);
             }
         } catch (\Throwable $th) {
@@ -157,6 +190,11 @@ class ExampleController extends Controller
             Log::channel('slack')->error("La función findFhir produjo una excepción", $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    public function getUrl()
+    {
+        return $this->getUrlBase();
     }
 
     /**
