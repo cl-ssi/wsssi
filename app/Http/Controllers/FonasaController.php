@@ -22,23 +22,27 @@ class FonasaController extends Controller
      */
     public function testCertificate(Request $request)
     {
-        if($request->has('run') AND $request->has('dv')) {
-            try {
+        try {
+            if($request->has('run') && $request->has('dv')) {
                 $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
                 $responseFonasa = $fonasa->getPerson();
 
                 return ($responseFonasa['error'] == true)
                     ? response()->json($responseFonasa, Response::HTTP_BAD_REQUEST)
                     : response()->json($responseFonasa['user'], Response::HTTP_OK);
-            } catch (\Throwable $th) {
-                $error = [
-                    'message' => $th->getMessage(),
-                    'code' => $th->getCode(),
-                    'line' => $th->getLine()
-                ];
-                Log::channel('slack')->error("El servicio Fonasa produjo una excepción.", $error);
-                return response()->json($error, Response::HTTP_BAD_REQUEST);
+            } else {
+                return response()->json([
+                    'message' => 'No se especificó el run y el dv como parámetro.'
+                ], Response::HTTP_BAD_REQUEST);
             }
+        } catch (\Throwable $th) {
+            $error = [
+                'message' => $th->getMessage(),
+                'code' => $th->getCode(),
+                'line' => $th->getLine()
+            ];
+            Log::channel('slack')->error("El servicio Fonasa produjo una excepción.", $error);
+            return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
 
