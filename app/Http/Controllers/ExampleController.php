@@ -99,9 +99,7 @@ class ExampleController extends Controller
                         Log::channel('slack')->notice("El paciente $run-$dv fue agregado con nombre oficial");
                     }
 
-                    return response()->json([
-                        'fhir' => $fhir->find($run, $dv)
-                    ], Response::HTTP_OK);
+                    return response()->json($fhir->find($run, $dv), Response::HTTP_OK);
                 }
 
                 return response()->json([
@@ -136,11 +134,7 @@ class ExampleController extends Controller
                 $fhir = new FhirService;
                 $responseFhir = $fhir->find($request->run, $request->dv);
                 if ($responseFhir['find'] == false) {
-                    $newFhir = $fhir->save($request);
-                    
-                    return response()->json([
-                        'fhir' => $newFhir['fhir']
-                    ], Response::HTTP_OK);
+                    return response()->json($fhir->save($request), Response::HTTP_OK);
                 }
 
                 return response()->json([
