@@ -96,7 +96,7 @@ class ExampleController extends Controller
                     } else {
                         $newFhir = $fhir->save($responseFonasa['user']);
                         $error = $fhir->updateName($request->name, $newFhir['fhir']->id);
-                        Log::channel('slack')->notice("El paciente $run-$dv fue agregado con nombre oficial");
+                        // Log::channel('slack')->notice("El paciente $run-$dv fue agregado con nombre oficial");
                     }
 
                     return response()->json($fhir->find($run, $dv), Response::HTTP_OK);
@@ -169,7 +169,7 @@ class ExampleController extends Controller
             $responseFhir = $fhir->find($request->run, $request->dv);
 
             if ($responseFhir['find'] == true)
-                return response()->json($responseFhir['fhir'], Response::HTTP_OK);
+                return response()->json($responseFhir, Response::HTTP_OK);
             else {
                 return response()->json([
                     'message' => "El paciente $request->run-$request->dv no fue encontrado en Fhir"
