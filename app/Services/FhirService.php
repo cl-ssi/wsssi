@@ -52,7 +52,7 @@ class FhirService
             ]],
             "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
-                "use" => "temp",
+                "use" => "official",
                 "value" => $person['run'] . "-" . $person['dv'],
                 "type" => [
                     "text" => "RUN"
