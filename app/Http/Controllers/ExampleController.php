@@ -32,6 +32,8 @@ class ExampleController extends Controller
                     $responseFhir = $fhir->find($request->run, $request->dv);
                     $fhir = $responseFhir['fhir'];
 
+                    return response()->json($responseFhir, Response::HTTP_OK);
+
                     if ($responseFhir['find'] == false) {
                         $new = $fhir->save($responseFonasa['user']);
                         $fhir = $new['fhir'];
