@@ -30,17 +30,17 @@ class ExampleController extends Controller
                 if ($responseFonasa['error'] == false) {
                     $fhir = new FhirService;
                     $responseFhir = $fhir->find($request->run, $request->dv);
-                    $fhir = $responseFhir['fhir'];
-
-                    return response()->json($responseFhir, Response::HTTP_OK);
+                    $objectFhir = $responseFhir['fhir'];
 
                     if ($responseFhir['find'] == false) {
                         $new = $fhir->save($responseFonasa['user']);
-                        $fhir = $new['fhir'];
+                        $objectFhir = $new['fhir'];
                     }
 
                     Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
-                    return response()->json($responseFonasa['user'], Response::HTTP_OK);
+                    return response()->json([
+                        'fhir' => $objectFhir
+                    ], Response::HTTP_OK);
                 }
 
                 if ($responseFonasa['error'] == true) {
