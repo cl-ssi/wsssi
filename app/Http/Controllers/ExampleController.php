@@ -22,6 +22,7 @@ class ExampleController extends Controller
      */
     public function certificate(Request $request)
     {
+        return response()->json([$request->run, $request->dv]);
         try {
             if ($request->has('run') && $request->has('dv')) {
                 $fonasa = new FonasaService($request->run, $request->dv);
