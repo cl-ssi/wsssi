@@ -27,8 +27,6 @@ class ExampleController extends Controller
                 $fonasa = new FonasaService($request->run, $request->dv);
                 $responseFonasa = $fonasa->getPerson();
 
-                return response()->json($responseFonasa, Response::HTTP_OK);
-
                 if ($responseFonasa['error'] == false) {
                     $fhir = new FhirService;
                     $responseFhir = $fhir->find($request->run, $request->dv);
@@ -38,6 +36,9 @@ class ExampleController extends Controller
                         $new = $fhir->save($responseFonasa['user']);
                         $fhir = $new['fhir'];
                     }
+
+                    Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
+                    return response()->json($responseFonasa['user'], Response::HTTP_OK);
                 }
 
                 if ($responseFonasa['error'] == true) {
@@ -45,8 +46,6 @@ class ExampleController extends Controller
                         'message' => $responseFonasa['message']
                     ], Response::HTTP_BAD_REQUEST);
                 }
-                Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
-                return response()->json($responseFonasa['user'], Response::HTTP_OK);
             }
 
             return response()->json([
