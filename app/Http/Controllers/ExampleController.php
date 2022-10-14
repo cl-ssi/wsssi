@@ -15,7 +15,7 @@ class ExampleController extends Controller
     use GoogleToken;
 
     /**
-     * Nuevo función certificate para FonasaController.
+     * Nueva función certificate para FonasaController.
      * Busca el run en fonasa y lo agrega como nombre "temp" en Fhir.
      *
      * @param \Illuminate\Http\Request  $request
@@ -38,9 +38,7 @@ class ExampleController extends Controller
                     }
 
                     // Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
-                    return response()->json([
-                        'fhir' => $objectFhir
-                    ], Response::HTTP_OK);
+                    return response()->json($responseFonasa['user'], Response::HTTP_OK);
                 }
 
                 if ($responseFonasa['error'] == true) {
