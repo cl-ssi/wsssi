@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Traits\GoogleToken;
 use GuzzleHttp\Client as Client;
+use Illuminate\Support\Str;
 
 class FhirService
 {
@@ -17,6 +18,7 @@ class FhirService
         $names = explode(" ", $person['name']);
         $fullname = isset($person['fathers_family']) ? $person['name'] . " " . $person['fathers_family'] : $person['name'];
         $fullname = isset($person['mothers_family']) ? $fullname . " " . $person['mothers_family'] : $fullname;
+        $run = $person['run'] . "-" . Str::lower($person['dv']);
         $extensionFamily = [];
 
         if(isset($person['fathers_family']))
@@ -53,7 +55,7 @@ class FhirService
             "identifier" => [[
                 "system" => "http://www.registrocivil.cl/run",
                 "use" => "official",
-                "value" => $person['run'] . "-" . $person['dv'],
+                "value" => $run,
                 "type" => [
                     "text" => "RUN"
                 ]
