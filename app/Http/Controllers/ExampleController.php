@@ -37,7 +37,7 @@ class ExampleController extends Controller
                         $objectFhir = $new['fhir'];
                     }
 
-                    Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
+                    // Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
                     return response()->json([
                         'fhir' => $objectFhir
                     ], Response::HTTP_OK);
@@ -114,7 +114,7 @@ class ExampleController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error("La función storePatientOnFhir produjo una excepción", $error);
+            Log::channel('slack')->error('La función storePatientOnFhir produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
@@ -150,7 +150,7 @@ class ExampleController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error("La función storePatientAsTemp produjo una excepción", $error);
+            Log::channel('slack')->error('La función storePatientAsTemp produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
@@ -179,14 +179,9 @@ class ExampleController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error("La función findFhir produjo una excepción", $error);
+            Log::channel('slack')->error('La función findFhir produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
-    }
-
-    public function getUrl()
-    {
-        return $this->getUrlBase();
     }
 
     /**
