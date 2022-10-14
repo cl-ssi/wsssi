@@ -18,12 +18,11 @@ $router->get('/', function () {
     return 'hello world';
 });
 
-$router->get('/fonasa', 'FonasaController@testCertificate');
-$router->get('/certificate', 'ExampleController@certificate');
+// $router->get('/fonasa', 'FonasaController@testCertificate');
+$router->get('/fonasa', 'ExampleController@certificate');
 $router->post('/store-patient-on-fhir', 'ExampleController@storePatientOnFhir');
 $router->post('/store-patient-as-temp', 'ExampleController@storePatientAsTemp');
 $router->get('/find-fhir', 'ExampleController@findFhir');
-$router->get('/url', 'ExampleController@getUrl');
 
 $router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
 

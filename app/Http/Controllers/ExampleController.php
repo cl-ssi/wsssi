@@ -15,7 +15,7 @@ class ExampleController extends Controller
     use GoogleToken;
 
     /**
-     * Nuevo certificate para FonasaController.
+     * Nuevo función certificate para FonasaController.
      * Busca el run en fonasa y lo agrega como nombre "temp" en Fhir.
      *
      * @param \Illuminate\Http\Request  $request
@@ -24,16 +24,15 @@ class ExampleController extends Controller
     {
         try {
             if ($request->has('run') && $request->has('dv')) {
-                $fonasa = new FonasaService($request->input('run'), $request->input('dv'));
+                $fonasa = new FonasaService($request->run, $request->dv);
                 $responseFonasa = $fonasa->getPerson();
 
                 if ($responseFonasa['error'] == false) {
                     $fhir = new FhirService;
-                    $responseFhir = $fhir->find($request->input('run'), $request->input('dv'));
+                    $responseFhir = $fhir->find($request->run, $request->dv);
+                    $fhir = $responseFhir['fhir'];
 
-                    if ($responseFhir['find'] == true)
-                        $fhir = $responseFhir['fhir'];
-                    else {
+                    if ($responseFhir['find'] == false) {
                         $new = $fhir->save($responseFonasa['user']);
                         $fhir = $new['fhir'];
                     }
@@ -44,12 +43,8 @@ class ExampleController extends Controller
                         'message' => $responseFonasa['message']
                     ], Response::HTTP_BAD_REQUEST);
                 }
-
-                return response()->json([
-                    'user' => $responseFonasa['user'],
-                    'fhir' => $fhir,
-                    'find' => $responseFhir['find'],
-                ], Response::HTTP_OK);
+                Log::channel('slack')->notice("La nueva función certificate se ejecutó correctamente: $request->run-$request->dv");
+                return response()->json($responseFonasa['user'], Response::HTTP_OK);
             }
 
             return response()->json([
