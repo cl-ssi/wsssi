@@ -30,11 +30,11 @@ class FonasaController extends Controller
                 return ($responseFonasa['error'] == true)
                     ? response()->json($responseFonasa, Response::HTTP_BAD_REQUEST)
                     : response()->json($responseFonasa['user'], Response::HTTP_OK);
-            } else {
-                return response()->json([
-                    'message' => 'No se especificó el run y el dv como parámetro.'
-                ], Response::HTTP_BAD_REQUEST);
             }
+
+            return response()->json([
+                'message' => 'No se especificó el run y el dv como parámetro.'
+            ], Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $th) {
             $error = [
                 'message' => $th->getMessage(),
