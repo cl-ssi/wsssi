@@ -18,7 +18,7 @@ class FhirService
         $names = explode(" ", $person['name']);
         $fullname = isset($person['fathers_family']) ? $person['name'] . " " . $person['fathers_family'] : $person['name'];
         $fullname = isset($person['mothers_family']) ? $fullname . " " . $person['mothers_family'] : $fullname;
-        $run = $person['run'] . "-" . Str::lower($person['dv']);
+        $run = $person['run'] . "-" . Str::upper($person['dv']);
         $extensionFamily = [];
 
         if(isset($person['fathers_family']))
@@ -101,6 +101,7 @@ class FhirService
 
     public function find($run, $dv)
     {
+        $dv = Str::upper($dv);
         $client = new Client(['base_uri' => $this->getUrlBase()]);
         $response = $client->request(
             'GET',
