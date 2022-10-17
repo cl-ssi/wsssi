@@ -87,7 +87,7 @@ class ExampleController extends Controller
                         $qtyNames = count($responseFhir['fhir']->entry[0]->resource->name);
                         if ($qtyNames == 1 && $responseFhir['fhir']->entry[0]->resource->name[0]->use != "official") {
                             $error = $fhir->updateName($request->name, $responseFhir['idFhir']);
-                            Log::channel('slack')->notice("El paciente $run-$dv fue actualizado con nombre oficial");
+                            // Log::channel('slack')->notice("El paciente $run-$dv fue actualizado con nombre oficial");
                         }
                     } else {
                         $newFhir = $fhir->save($responseFonasa['user']);
