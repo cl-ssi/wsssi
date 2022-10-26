@@ -61,10 +61,15 @@ class FonasaService
                 $user['direccion']      = $beneficiario->direccion;
                 $user['telefono']       = $beneficiario->telefono;
 
-                if($afiliado->desEstado == 'ACTIVO')
+                if($afiliado->desEstado == 'ACTIVO') {
                     $user['tramo'] = $afiliado->tramo;
+                    $user['prevision'] = "FONASA $afiliado->tramo";
+                }
                 else
+                {
                     $user['tramo'] = null;
+                    $user['prevision'] = "ISAPRE";
+                }
 
                 $response['user'] = $user;
                 $response['error'] = false;
