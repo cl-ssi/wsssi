@@ -18,7 +18,8 @@ $router->get('/', function () {
     return 'hello world';
 });
 
-// $router->get('/fonasa', 'FonasaController@testCertificate');
+$router->get('/test-fonasa', 'FonasaController@certificate');
+
 $router->get('/fonasa', 'ExampleController@certificate');
 $router->post('/store-patient-on-fhir', 'ExampleController@storePatientOnFhir');
 $router->post('/store-patient-as-temp', 'ExampleController@storePatientAsTemp');

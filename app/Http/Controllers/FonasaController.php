@@ -97,13 +97,16 @@ class FonasaController extends Controller
                     $user['mothers_family'] = $beneficiario->apell2;
                     $user['birthday']       = $beneficiario->fechaNacimiento;
                     $user['gender']         = $beneficiario->generoDes;
-                    $user['desRegion']         = $beneficiario->desRegion;
-                    $user['desComuna']         = $beneficiario->desComuna;
+                    $user['desRegion']      = $beneficiario->desRegion;
+                    $user['desComuna']      = $beneficiario->desComuna;
                     $user['direccion']      = $beneficiario->direccion;
-                    $user['telefono']      = $beneficiario->telefono;
-
+                    $user['telefono']       = $beneficiario->telefono;
+                    $user['certificado']    = $certificado;
+                    $user['afiliado']       = $afiliado;
+                    
                     if($afiliado->desEstado == 'ACTIVO') {
                         $user['tramo'] = $afiliado->tramo;
+
                     }
                     else {
                         $user['tramo'] = null;
