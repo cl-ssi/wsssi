@@ -101,17 +101,15 @@ class FonasaController extends Controller
                     $user['desComuna']      = $beneficiario->desComuna;
                     $user['direccion']      = $beneficiario->direccion;
                     $user['telefono']       = $beneficiario->telefono;
-                    $user['certificado']    = $certificado;
-                    $user['afiliado']       = $afiliado;
-                    
+
                     if($afiliado->desEstado == 'ACTIVO') {
                         $user['tramo'] = $afiliado->tramo;
-
+                        $user['prevision'] = "FONASA $afiliado->tramo";
                     }
                     else {
                         $user['tramo'] = null;
+                        $user['prevision'] = "ISAPRE";
                     }
-                    //$user['estado']       = $afiliado->desEstado;
                 }
                 else {
                     /* Error */
