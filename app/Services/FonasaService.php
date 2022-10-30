@@ -60,7 +60,8 @@ class FonasaService
                 $user['desComuna']      = $beneficiario->desComuna;
                 $user['direccion']      = $beneficiario->direccion;
                 $user['telefono']       = $beneficiario->telefono;
-
+                $user['estado_afiliado'] = $afiliado->desEstado;
+                
                 if($afiliado->desEstado == 'ACTIVO') {
                     $user['tramo'] = $afiliado->tramo;
                     $user['prevision'] = "FONASA $afiliado->tramo";
