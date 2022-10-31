@@ -22,7 +22,8 @@ $router->get('/fonasa', 'FonasaController@certificate');
 
 $router->post('/store-patient-on-fhir', 'FhirController@storePatientOnFhir');
 $router->post('/store-patient-as-temp', 'FhirController@storePatientAsTemp');
-$router->get('/find-fhir', 'FhirController@findFhir');
+$router->get('/find-fhir', 'FhirController@findPatient');
+$router->get('/delete', 'FhirController@deletePatient');
 
 $router->get('/rayen-urgencia', 'RayenUrgenciaController@getStatus');
 
