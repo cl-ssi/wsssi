@@ -216,4 +216,29 @@ class FhirService
 
         return $error;
     }
+
+    public function delete($idFhir)
+    {
+        $client = new Client(['base_uri' => $this->getUrlBase()]);
+        $response = $client->request(
+            'DELETE',
+            "Patient/" . $idFhir,
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->getToken(),
+                ],
+            ]
+        );
+        $result['deleted'] = false;
+
+        if ($response->getStatusCode() == 200)
+        {
+            $response = $response->getBody()->getContents();
+            $response = json_decode($response);
+
+            $result["deleted"] = true;
+        }
+
+        return $result;
+    }
 }
