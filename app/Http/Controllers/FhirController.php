@@ -109,7 +109,7 @@ class FhirController extends Controller
      *
      * @param \Illuminate\Http\Request  $request
      */
-    public function findFhir(Request $request)
+    public function findPatient(Request $request)
     {
         try {
             $fhir = new FhirService;
@@ -128,7 +128,52 @@ class FhirController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error('La función findFhir produjo una excepción', $error);
+            Log::channel('slack')->error('La función findPatient produjo una excepción', $error);
+            return response()->json($error, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Elimina un paciente en Fhir dado un Run y un DV
+     *
+     * @param \Illuminate\Http\Request  $request
+     */
+    public function deletePatient(Request $request)
+    {
+        try {
+            $run = $request->run;
+            $dv = $request->dv;
+
+            if (isset($run) && isset($dv)) {
+                $fhir = new FhirService;
+                $responseFind = $fhir->find($request->run, $request->dv);
+
+                if ($responseFind['find'] == true) {
+                    $fhir = new FhirService;
+                    $respondeDelete = $fhir->delete($responseFind['idFhir']);
+
+                    if($respondeDelete['deleted']) {
+                        return response()->json([
+                            'message' => "El paciente $run-$dv fue eliminado"
+                        ], Response::HTTP_OK);
+                    }
+                }
+
+                return response()->json([
+                    'message' => "El paciente $run-$dv no fue encontrado"
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            return response()->json([
+                'message' => 'No se especificó el run y el dv como parámetro'
+            ], Response::HTTP_BAD_REQUEST);
+        } catch (\Throwable $th) {
+            $error = [
+                'message' => $th->getMessage(),
+                'code' => $th->getCode(),
+                'line' => $th->getLine()
+            ];
+            Log::channel('slack')->error('La función deletePatient produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
