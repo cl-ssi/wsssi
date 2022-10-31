@@ -13,13 +13,21 @@ class FhirService
     public function save($person)
     {
         $person['name'] = trim($person['name']);
-        $person['fathers_family'] = isset($person['fathers_family']) ? trim($person['fathers_family']) : null;
-        $person['mothers_family'] = isset($person['mothers_family']) ? trim($person['mothers_family']) : null;
+
+        $person['fathers_family'] = trim($person['fathers_family']);
+        $person['mothers_family'] = trim($person['mothers_family']);
+
+        $person['fathers_family'] = ($person['fathers_family'] != "") ? $person['fathers_family'] : null;
+        $person['mothers_family'] = ($person['mothers_family'] != "") ? $person['mothers_family'] : null;
+
         $names = explode(" ", $person['name']);
+
         $fullname = isset($person['fathers_family']) ? $person['name'] . " " . $person['fathers_family'] : $person['name'];
         $fullname = isset($person['mothers_family']) ? $fullname . " " . $person['mothers_family'] : $fullname;
+
         $run = $person['run'] . "-" . Str::upper($person['dv']);
         $extensionFamily = [];
+        $family = "";
 
         if(isset($person['fathers_family']))
         {
@@ -75,8 +83,14 @@ class FhirService
         if($person["gender"])
             $data["gender"] = ($person['gender'] == "Masculino" || $person['gender'] == "male") ? "male" : "female";
 
-        if(isset($person['fathers_family']) && isset($person['mothers_family']))
-            $data["name"][0]["family"] = $person['fathers_family'] . " " . $person['mothers_family'];
+        if(isset($person['fathers_family']))
+            $family = $person['fathers_family'];
+
+        if(isset($person['mothers_family']))
+            $family = $family . " ". $person['mothers_family'];
+
+        if(isset($person['fathers_family']) || isset($person['mothers_family']))
+            $data["name"][0]["family"] = trim($family);
 
         $client = new Client(['base_uri' => $this->getUrlBase()]);
         $response = $client->request(
