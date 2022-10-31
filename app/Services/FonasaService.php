@@ -64,7 +64,7 @@ class FonasaService
                 $user['codigo_afiliado'] = $certificado->coddesc;
                 $user['codigo_prais']    = $certificado->codigoprais;
                 $user['descripcion_prais'] = $certificado->descprais;
-                $user['descripcion_isapre'] = $certificado->descIsapre;
+                // $user['descripcion_isapre'] = $certificado->descIsapre;
 
                 if($afiliado->desEstado == 'ACTIVO') {
                     $user['tramo'] = $afiliado->tramo;
