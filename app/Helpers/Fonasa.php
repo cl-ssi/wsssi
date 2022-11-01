@@ -48,8 +48,8 @@ class Fonasa
                     $prevision = $patient['codigo_afiliado'];
                 else
                 {
-                    $prevision = "INDETERMINADA";
-                    Log::channel('slack')->warning("El paciente tiene una prevision indeterminada", $patient);
+                    $prevision = $patient['codigo_afiliado'];
+                    Log::channel('slack')->warning("El paciente tiene una prevision: "  . $patient['codigo_afiliado'], $patient);
                 }
                 break;
 
