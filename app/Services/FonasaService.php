@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Helpers\Fonasa;
+
 class FonasaService
 {
     public $rut;
@@ -67,15 +69,12 @@ class FonasaService
                 $user['descripcion_isapre'] = $certificado->desIsapre;
                 $user['codigo_isapre'] = $certificado->cdgIsapre;
 
-                if($afiliado->desEstado == 'ACTIVO') {
+                if($afiliado->desEstado == 'ACTIVO')
                     $user['tramo'] = $afiliado->tramo;
-                    $user['prevision'] = "FONASA $afiliado->tramo";
-                }
                 else
-                {
                     $user['tramo'] = null;
-                    $user['prevision'] = "ISAPRE";
-                }
+
+                $user['prevision'] = Fonasa::getPrevision($user);
 
                 $response['user'] = $user;
                 $response['error'] = false;
