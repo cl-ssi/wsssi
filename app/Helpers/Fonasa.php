@@ -40,7 +40,11 @@ class Fonasa
                     $prevision = "PRAIS";
                 elseif($patient['codigo_isapre'] != ' ')
                     $prevision = "ISAPRE";
-                elseif($patient['codigo_isapre'] == ' ')
+                elseif($patient['codigo_isapre'] == ' ' && $patient['codigo_afiliado'] == "BLOQUEADO CAPREDENA")
+                    $prevision = "CAPREDENA";
+                elseif($patient['codigo_isapre'] == ' ' && $patient['codigo_afiliado'] == "BLOQUEADO DIPRECA")
+                    $prevision = "DIPRECA";
+                elseif($patient['codigo_isapre'] == ' ' && $patient['codigo_afiliado'] == "BLOQUEADO SIN INFORMACION")
                     $prevision = $patient['codigo_afiliado'];
                 else
                 {
