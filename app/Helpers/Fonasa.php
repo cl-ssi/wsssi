@@ -87,4 +87,20 @@ class Fonasa
             $locked = true;
         return $locked;
     }
+
+    /**
+     * Get section
+     *
+     * @param  array  $patient
+     * @param  string $sectionFonasa
+     * @return boolean
+     */
+    public static function getSection($patient, $sectionFonasa)
+    {
+        $section = null;
+        if($patient['estado_afiliado'] == 'ACTIVO')
+            $section = trim($sectionFonasa);
+
+        return ($section != "" && $section != null) ? $section : null;
+    }
 }
