@@ -3,12 +3,15 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Fonasa
 {
     /**
      * Get prevision
      *
+     * @param  array  $patient
+     * @return string
      */
     public static function getPrevision($patient)
     {
@@ -40,12 +43,12 @@ class Fonasa
                     $prevision = "PRAIS";
                 elseif($patient['codigo_isapre'] != ' ')
                     $prevision = "ISAPRE";
-                elseif($patient['codigo_isapre'] == ' ' && $patient['codigo_afiliado'] == "BLOQUEADO CAPREDENA")
-                    $prevision = "CAPREDENA";
-                elseif($patient['codigo_isapre'] == ' ' && $patient['codigo_afiliado'] == "BLOQUEADO DIPRECA")
-                    $prevision = "DIPRECA";
-                elseif($patient['codigo_isapre'] == ' ' && $patient['codigo_afiliado'] == "BLOQUEADO SIN INFORMACION")
-                    $prevision = $patient['codigo_afiliado'];
+                elseif($patient['codigo_isapre'] == ' ' && Str::contains($patient['codigo_afiliado'], 'BLOQUEADO'))
+                {
+                    $prevision = Str::replace('BLOQUEADO', '', $patient['codigo_afiliado']);
+                    $prevision = Str::replace('POR', '', $prevision);
+                    $prevision = trim($prevision);
+                }
                 else
                 {
                     $prevision = $patient['codigo_afiliado'];
@@ -58,7 +61,7 @@ class Fonasa
                     $prevision = "FONASA " . $patient['tramo'];
                 else
                 {
-                    $prevision = "INDETERMINADA";
+                    $prevision = "FONASA";
                     Log::channel('slack')->warning("El paciente tiene estado afiliado activo y tramo nulo", $patient);
                 }
                 break;
@@ -69,5 +72,19 @@ class Fonasa
                 break;
         }
         return $prevision;
+    }
+
+    /**
+     * Get locked
+     *
+     * @param  array  $patient
+     * @return boolean
+     */
+    public static function getLocked($patient)
+    {
+        $locked = false;
+        if(Str::contains($patient['codigo_afiliado'], 'BLOQUEADO'))
+            $locked = true;
+        return $locked;
     }
 }

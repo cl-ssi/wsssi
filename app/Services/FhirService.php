@@ -10,6 +10,12 @@ class FhirService
 {
     use GoogleToken;
 
+    /**
+     * Save a patient in fhir
+     *
+     * @param  array  $person
+     * @return array
+     */
     public function save($person)
     {
         $person['name'] = trim($person['name']);
@@ -113,6 +119,12 @@ class FhirService
         return $result;
     }
 
+    /**
+     * Find a patient in fhir from run and dv
+     *
+     * @param  array  $run
+     * @return array
+     */
     public function find($run, $dv)
     {
         $dv = Str::upper($dv);
@@ -146,6 +158,13 @@ class FhirService
         return $result;
     }
 
+    /**
+     * Update a patient name
+     *
+     * @param  array  $person
+     * @param  string  $idFhir
+     * @return boolean
+     */
     public function updateName($person, $idFhir)
     {
         $names = implode(" ", $person['nombres']);
@@ -217,6 +236,12 @@ class FhirService
         return $error;
     }
 
+    /**
+     * Delete a patient in fhir from an id
+     *
+     * @param  string  $idFhir
+     * @return array
+     */
     public function delete($idFhir)
     {
         $client = new Client(['base_uri' => $this->getUrlBase()]);
