@@ -15,6 +15,11 @@ class FonasaService
         $this->dv = $dv;
     }
 
+    /**
+     * Get a person from the fonasa soap service
+     *
+     * @return void
+     */
     public function getPerson()
     {
         $wsdl = 'wsdl/fonasa/CertificadorPrevisionalSoap.wsdl';
@@ -67,7 +72,7 @@ class FonasaService
                 $user['codigo_prais']    = $certificado->codigoprais;
                 $user['descripcion_prais'] = $certificado->descprais;
                 $user['descripcion_isapre'] = $certificado->desIsapre;
-                $user['codigo_isapre'] = $certificado->cdgIsapre;
+                $user['codigo_isapre']  = $certificado->cdgIsapre;
 
                 if($afiliado->desEstado == 'ACTIVO')
                     $user['tramo'] = $afiliado->tramo;
@@ -75,6 +80,7 @@ class FonasaService
                     $user['tramo'] = null;
 
                 $user['prevision'] = Fonasa::getPrevision($user);
+                $user['bloqueado'] = Fonasa::getLocked($user);
 
                 $response['user'] = $user;
                 $response['error'] = false;
@@ -90,5 +96,4 @@ class FonasaService
 
         return $response;
     }
-
 }
