@@ -73,12 +73,7 @@ class FonasaService
                 $user['descripcion_prais'] = $certificado->descprais;
                 $user['descripcion_isapre'] = $certificado->desIsapre;
                 $user['codigo_isapre']  = $certificado->cdgIsapre;
-
-                if($afiliado->desEstado == 'ACTIVO')
-                    $user['tramo'] = $afiliado->tramo;
-                else
-                    $user['tramo'] = null;
-
+                $user['tramo'] = Fonasa::getSection($user, $afiliado->tramo);
                 $user['prevision'] = Fonasa::getPrevision($user);
                 $user['bloqueado'] = Fonasa::getLocked($user);
 
