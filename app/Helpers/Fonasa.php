@@ -49,7 +49,7 @@ class Fonasa
                 else
                 {
                     $prevision = $patient['codigo_afiliado'];
-                    Log::channel('slack')->warning("El paciente tiene una prevision: "  . $patient['codigo_afiliado'], $patient);
+                    // Log::channel('slack')->warning("El paciente tiene una prevision: "  . $patient['codigo_afiliado'], $patient);
                 }
                 break;
 
