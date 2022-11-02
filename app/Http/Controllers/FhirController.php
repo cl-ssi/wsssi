@@ -17,8 +17,9 @@ class FhirController extends Controller
     /**
      * Debe llamarse al loguearse con Clave Unica.
      * Busca el paciente en Fhir si existe, le actualiza el nombre como "official".
-     * Sino lo agrega en Fhir y agrega el nombre como "official".
-     * @param \Illuminate\Http\Request  $request
+     * Sino lo consulta en Fonasa, lo agrega en Fhir y actualiza el nombre como "official".
+     * 
+     * @param  \Illuminate\Http\Request  $request
      */
     public function storePatientOnFhir(Request $request)
     {
@@ -72,7 +73,7 @@ class FhirController extends Controller
      * Para guardar los pacientes en Fhir con nombre "temp".
      * Este endpoint lo consume el command del proyecto Esmeralda
      *
-     * @param \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request
      */
     public function storePatientAsTemp(Request $request)
     {
@@ -107,7 +108,7 @@ class FhirController extends Controller
     /**
      * Busca un paciente en Fhir dado un Run y un DV
      *
-     * @param \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request
      */
     public function findPatient(Request $request)
     {
@@ -136,7 +137,7 @@ class FhirController extends Controller
     /**
      * Elimina un paciente en Fhir dado un Run y un DV
      *
-     * @param \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request
      */
     public function deletePatient(Request $request)
     {

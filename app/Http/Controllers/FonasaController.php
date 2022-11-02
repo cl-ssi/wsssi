@@ -19,7 +19,7 @@ class FonasaController extends Controller
      * Nueva función certificate para FonasaController.
      * Busca el run en fonasa y lo agrega como nombre "temp" en Fhir.
      *
-     * @param \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request
      */
     public function certificate(Request $request)
     {
