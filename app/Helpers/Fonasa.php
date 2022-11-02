@@ -92,7 +92,7 @@ class Fonasa
      * Get section
      *
      * @param  array  $patient
-     * @param  string $sectionFonasa
+     * @param  string  $sectionFonasa
      * @return boolean
      */
     public static function getSection($patient, $sectionFonasa)
