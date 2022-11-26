@@ -18,7 +18,7 @@ class FhirController extends Controller
      * Debe llamarse al loguearse con Clave Unica.
      * Busca el paciente en Fhir si existe, le actualiza el nombre como "official".
      * Sino lo consulta en Fonasa, lo agrega en Fhir y actualiza el nombre como "official".
-     * 
+     *
      * @param  \Illuminate\Http\Request  $request
      */
     public function storePatientOnFhir(Request $request)
@@ -64,7 +64,7 @@ class FhirController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error('La función storePatientOnFhir produjo una excepción', $error);
+            // Log::channel('slack')->error('La función storePatientOnFhir produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
@@ -100,7 +100,7 @@ class FhirController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error('La función storePatientAsTemp produjo una excepción', $error);
+            // Log::channel('slack')->error('La función storePatientAsTemp produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
@@ -129,7 +129,7 @@ class FhirController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error('La función findPatient produjo una excepción', $error);
+            // Log::channel('slack')->error('La función findPatient produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
@@ -174,7 +174,7 @@ class FhirController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error('La función deletePatient produjo una excepción', $error);
+            // Log::channel('slack')->error('La función deletePatient produjo una excepción', $error);
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
