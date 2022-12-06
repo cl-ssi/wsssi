@@ -58,7 +58,9 @@ class FonasaController extends Controller
                 'code' => $th->getCode(),
                 'line' => $th->getLine()
             ];
-            Log::channel('slack')->error("La función certificate de FonasaController produjo una excepción", $error);
+            if($th->getMessage() != 'Request Timeout')
+                Log::channel('slack')->error("La función certificate de FonasaController produjo una excepción", $error);
+
             return response()->json($error, Response::HTTP_BAD_REQUEST);
         }
     }
