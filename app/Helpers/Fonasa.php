@@ -62,7 +62,7 @@ class Fonasa
                 else
                 {
                     $prevision = "FONASA";
-                    Log::channel('slack')->warning("El paciente tiene estado afiliado activo y tramo nulo", $patient);
+                    // Log::channel('slack')->warning("El paciente tiene estado afiliado activo y tramo nulo", $patient);
                 }
                 break;
 
