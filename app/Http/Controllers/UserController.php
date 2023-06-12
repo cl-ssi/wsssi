@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Users;
+use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
@@ -34,5 +35,18 @@ class UserController extends Controller
             return response()->json(['status' => 'fail'],401);
         }
    }
+
+    /** Ruta temporar para probar api de mercado publico */
+    public static function getPurchaseOrderTest($code)
+    {
+
+        $response = Http::get('https://api.mercadopublico.cl/servicios/v1/publico/ordenesdecompra.json', [
+            'codigo' => $code,
+            'ticket' => env('TICKET_MERCADO_PUBLICO')
+        ]);
+
+        return response()->json(['oc' => json_decode($response)]);
+
+    }
 }
 ?>
