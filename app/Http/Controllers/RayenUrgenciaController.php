@@ -9,11 +9,6 @@ use Illuminate\Http\Client\RequestException;
 
 class RayenUrgenciaController extends Controller
 {
-    public function __construct()
-    {
-        //$this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -28,7 +23,7 @@ class RayenUrgenciaController extends Controller
 		$url_query = '/emergencyAdmissions?fromDate=';
 
 		/**
-		 * En archivo .env 
+		 * En archivo .env
 		 * ESTABLECIMIENTOS='{"SAPU Aguirre":{"id":4198,"token":"SDX-TICKET ..."},"SAR Sur":{"id":4162,"token":"SDX-TICKET ..."}}'
 		 */
 
@@ -74,10 +69,10 @@ class RayenUrgenciaController extends Controller
 			} catch(RequestException $e) {
 				die('Tiempo de espera agotado');
 			}
-			
+
 		}
 		$count['updated'] = date('Y-m-d H:i');
-		
+
 		return isset($count) ? response()->json($count) : null;
     }
 }

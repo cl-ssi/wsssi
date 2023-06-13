@@ -36,6 +36,4 @@ $router->group(['prefix' => 'api/'], function () use ($router) {
     $router->delete('todo/{id}/', 'TodoController@destroy');
 });
 
-$router->get('/purchase-order/{code}', 'UserController@getPurchaseOrderTest');
-//http://localhost:8000/api/purchase-order/1077499-170-AG23
-
+$router->get('/purchase-order/{code}', 'MercadoPublicoController@getPurchaseOrder');
