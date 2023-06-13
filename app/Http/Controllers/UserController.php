@@ -10,17 +10,13 @@ use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
-    public function __construct()
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function authenticate(Request $request)
     {
-        //  $this->middleware('auth:api');
-    }
-   /**
-    * Display a listing of the resource.
-    *
-    * @return \Illuminate\Http\Response
-    */
-   public function authenticate(Request $request)
-   {
         $this->validate($request, [
             'email' => 'required',
             'password' => 'required'

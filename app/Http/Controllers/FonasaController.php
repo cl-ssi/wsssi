@@ -10,11 +10,6 @@ use Illuminate\Support\Facades\Log;
 
 class FonasaController extends Controller
 {
-    public function __construct()
-    {
-        //$this->middleware('auth');
-    }
-
     /**
      * Nueva función certificate para FonasaController.
      * Busca el run en fonasa y lo agrega como nombre "temp" en Fhir.
