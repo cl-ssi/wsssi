@@ -24,7 +24,7 @@ class ClaveUnicaController extends Controller
         if($token) {
             $url_base = "https://www.claveunica.gob.cl/openid/userinfo";
             $response = Http::withToken($token)->post($url_base);
-            dd(json_decode($response));
+            return $response;
         }
         else {
             echo "No se ha proporcionado un access_token";
