@@ -20,7 +20,7 @@ $router->get('/', function () {
 
 $router->get('/fonasa', 'FonasaController@certificate');
 
-$router->get('/claveunica/login/{access_token?}', 'ClaveUnicaController@login');
+$router->get('/claveunica/login/{token}', 'ClaveUnicaController@login');
 
 $router->post('/store-patient-on-fhir', 'FhirController@storePatientOnFhir');
 $router->post('/store-patient-as-temp', 'FhirController@storePatientAsTemp');

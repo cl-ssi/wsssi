@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
-use App\Users;
 use App\Http\Controllers\Controller;
 
 class ClaveUnicaController extends Controller
@@ -19,11 +19,11 @@ class ClaveUnicaController extends Controller
     *
     * @return \Illuminate\Http\Response
     */
-    public function login($access_token = null)
+    public function login($token = null)
     {
-        if($access_token) {
+        if($token) {
             $url_base = "https://www.claveunica.gob.cl/openid/userinfo";
-            $response = Http::withToken($access_token)->post($url_base);
+            $response = Http::withToken($token)->post($url_base);
             echo "estoy";
             dd(json_decode($response));
         }
