@@ -22,7 +22,7 @@ class ClaveUnicaController extends Controller
     public function login($token)
     {
         if($token) {
-            $url_base = "https://www.claveunica.gob.cl/openid/userinfo";
+            $url_base = "https://accounts.claveunica.gob.cl/openid/userinfo";
             $response = Http::withToken($token)->post($url_base);
             return $response;
         }
