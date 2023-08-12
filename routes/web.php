@@ -39,3 +39,4 @@ $router->group(['prefix' => 'api/'], function () use ($router) {
 });
 
 $router->get('/purchase-order/{code}', 'MercadoPublicoController@getPurchaseOrder');
+$router->get('/purchase-order-v2/{code}', 'MercadoPublicoController@getPurchaseOrderV2');
