@@ -44,7 +44,7 @@ class MercadoPublicoController extends Controller
 
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th->getMessage(),
+                'message' => $th->getCode() == 0 ? 'No fue posible establecer conexión con Mercado Público.' : $th->getMessage(),
                 'detail' => 'Disculpe, no pudimos obtener los datos de la orden de compra, intente nuevamente.',
                 'code' => $th->getCode(),
             ], Response::HTTP_BAD_REQUEST);
