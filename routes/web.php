@@ -15,7 +15,7 @@
 
 $router->get('/', function () {
 	//app('log')->channel('slack')->error('Hitting first log to slack');
-    return 'hello world';
+    return 'hello world!';
 });
 
 $router->get('/fonasa', 'FonasaController@certificate');
