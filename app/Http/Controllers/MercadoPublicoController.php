@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Http;
 
 class MercadoPublicoController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('api');
+    }
+
     /**
      * @param  string $code
      * @return \Illuminate\Http\Response
