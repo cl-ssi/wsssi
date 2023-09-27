@@ -22,13 +22,13 @@ class MercadoPublicoController extends Controller
 
             $oc = json_decode($response);
 
-            if($response->status() != 200) {
+            if($response->status() != Response::HTTP_OK) {
                 return response()->json([
                     'message' => "No existe en nuestros registros y no se pudo conectar con MercadoPublico. Error ".$response->status(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
-            if($response->status() == 200) {
+            if($response->status() == Response::HTTP_OK) {
                 if($oc->Cantidad == 0) {
                     return response()->json([
                         'message' => "La orden de compra está eliminada, no aceptada o no válida.",
@@ -65,7 +65,7 @@ class MercadoPublicoController extends Controller
                 'ticket' => env('TICKET_MERCADO_PUBLICO')
             ]);
 
-            if(! $response->status() != 200) {
+            if($response->status() != Response::HTTP_OK) {
                 return response()->json([
                     'message' => "No existe en nuestros registros y no se pudo conectar con MercadoPublico. Error ".$response->status(),
                 ], Response::HTTP_BAD_REQUEST);
@@ -73,7 +73,7 @@ class MercadoPublicoController extends Controller
 
             $oc = json_decode($response);
 
-            if($response->status() == 200) {
+            if($response->status() == Response::HTTP_OK) {
                 if($oc->Cantidad == 0) {
                     return response()->json([
                         'message' => "La orden de compra está eliminada, no aceptada o no válida.",
