@@ -38,5 +38,12 @@ $router->group(['prefix' => 'api/'], function () use ($router) {
     $router->delete('todo/{id}/', 'TodoController@destroy');
 });
 
-$router->get('/purchase-order/{code}', 'MercadoPublicoController@getPurchaseOrder');
-$router->get('/purchase-order-v2/{code}', 'MercadoPublicoController@getPurchaseOrderV2');
+$router->get('/purchase-order/{code}', [
+    'middleware' => 'api',
+    'uses' => 'MercadoPublicoController@getPurchaseOrder'
+]);
+
+$router->get('/purchase-order-v2/{code}', [
+    'middleware' => 'api',
+    'uses' => 'MercadoPublicoController@getPurchaseOrderV2'
+]);
