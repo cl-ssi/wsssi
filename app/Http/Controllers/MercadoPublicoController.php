@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Http;
 
 class MercadoPublicoController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('api');
-    }
-
     /**
      * @param  string $code
      * @return \Illuminate\Http\Response
@@ -27,13 +22,13 @@ class MercadoPublicoController extends Controller
 
             $oc = json_decode($response);
 
-            if(! $response->successful()) {
+            if($response->status() != 200) {
                 return response()->json([
                     'message' => "No existe en nuestros registros y no se pudo conectar con MercadoPublico. Error ".$response->status(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
-            if($response->successful()) {
+            if($response->status() == 200) {
                 if($oc->Cantidad == 0) {
                     return response()->json([
                         'message' => "La orden de compra está eliminada, no aceptada o no válida.",
@@ -70,7 +65,7 @@ class MercadoPublicoController extends Controller
                 'ticket' => env('TICKET_MERCADO_PUBLICO')
             ]);
 
-            if(! $response->successful()) {
+            if(! $response->status() != 200) {
                 return response()->json([
                     'message' => "No existe en nuestros registros y no se pudo conectar con MercadoPublico. Error ".$response->status(),
                 ], Response::HTTP_BAD_REQUEST);
@@ -78,7 +73,7 @@ class MercadoPublicoController extends Controller
 
             $oc = json_decode($response);
 
-            if($response->successful()) {
+            if($response->status() == 200) {
                 if($oc->Cantidad == 0) {
                     return response()->json([
                         'message' => "La orden de compra está eliminada, no aceptada o no válida.",
