@@ -68,7 +68,7 @@ class MercadoPublicoController extends Controller
             if($response->status() != Response::HTTP_OK) {
                 $decode = json_decode($response);
                 return response()->json([
-                    'message' => $decode->Mensaje,
+                    'message' => "MP: ".$decode->Mensaje,
                 ], Response::HTTP_BAD_REQUEST);
             }
 
