@@ -66,8 +66,9 @@ class MercadoPublicoController extends Controller
             ]);
 
             if($response->status() != Response::HTTP_OK) {
+                $decode = json_decode($response);
                 return response()->json([
-                    'message' => "No existe en nuestros registros y no se pudo conectar con MercadoPublico. Error ".$response->status(),
+                    'message' => $decode->Mensaje,
                 ], Response::HTTP_BAD_REQUEST);
             }
 
