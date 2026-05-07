@@ -26,7 +26,7 @@ class FonasaService
         $client = new \SoapClient($wsdl, array(
             'trace' => TRUE,
             // the waiting time to establish the connection to the server
-            'connection_timeout'=> 10, // in seconds
+            'connection_timeout'=> 30, // in seconds
         ));
         $parameters = array(
             "query" => array(
