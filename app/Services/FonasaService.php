@@ -55,7 +55,7 @@ class FonasaService
                 "claveEntidad"      => env('FONASA_CLAVE'),
                 "rutBeneficiario"   => $this->rut,
                 "dgvBeneficiario"   => $this->dv,
-                "canal"             => 3
+                "canal"             => 2
             )
         );
         try {
@@ -88,7 +88,7 @@ class FonasaService
         );
         $result = $client->getCertificadoPrevisional($parameters);
         */
-        
+
         if ($result === false)
         {
             $response['user'] = null;
