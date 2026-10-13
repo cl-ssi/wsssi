@@ -38,7 +38,7 @@ return [
     'channels' => [
         'google_cloud_logging' => [
             'driver' => 'custom',
-            'projectId'=> env('GOOGLE_CLOUD_PROJECT_ID'),
+            'projectId' => env('GOOGLE_CLOUD_PROJECT_ID'),
             'logName' => 'esmeralda',
             'labels' => [
                 'APP_NAME' => json_encode(env('APP_NAME')),
@@ -50,11 +50,10 @@ return [
             'via' => App\Logging\GoogleCloudLogging::class,
             'level' => 'debug',
         ],
-        
+
         'stack' => [
             'driver' => 'stack',
-            'name' => 'laravel-local',
-            'channels' => ['single'],
+            'channels' => ['teams'],
             'ignore_exceptions' => false,
         ],
 
@@ -83,6 +82,18 @@ return [
             'username' => env('APP_NAME'),
             'emoji' => ':boom:',
             'level' => 'debug',
+        ],
+
+        'teams' => [
+            'driver' => 'custom',//#1
+            'via' => LogMonolog::class,//#2
+            'webhookDsn' => env('LOG_TEAMS_WEBHOOK_URL'),//#3
+            'level' => 'debug',//#6
+            'title' => 'Log Siremx',//#4
+            'subject' => 'Message Subject',//#5 
+            'emoji' => '&#x1F3C1',//#7
+            'color' => '#fd0404',//#8
+            'format' => '[%datetime%] %channel%.%level_name%: %message%'//#9
         ],
 
         'papertrail' => [
