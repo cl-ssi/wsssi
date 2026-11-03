@@ -17,7 +17,7 @@
         "symfony/mime": "^5.4.52",
         "symfony/process": "^5.4.51",
         "symfony/var-dumper": "^5.4",
-        "symfony/http-foundation": "5.4.50",
+        "symfony/http-foundation": "5.4.54",
         "symfony/polyfill-intl-idn": "^1.38.1"
     },
     "require-dev": {
